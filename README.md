@@ -1,24 +1,25 @@
 # AI-Powered Moderation & Companion Discord Bot
 
-An intelligent, production-ready Discord bot built with Python (`discord.py`) and Google Gemini API (`google-genai` SDK) using model `gemini-2.5-flash`. It acts as a witty, grounded, chill companion for standard users while executing server moderation tasks via Gemini Function Calling for authorized moderators.
+An intelligent, production-ready Discord bot built with Python (`discord.py`) and Google Gemini API (`google-genai` SDK) using model `gemini-2.5-flash`. It acts as a witty, grounded, chill companion for standard users while executing full server moderation tasks via Gemini Function Calling for authorized moderators.
 
 ---
 
 ## Features
 
 - **Companion Persona**: Witty, grounded, and chill companion persona that chats naturally in Discord servers and direct messages.
-- **Strict Authorization & Security**: Moderation tool definitions are completely omitted from request payloads for standard users, ensuring Gemini can only execute moderation tasks for authorized user IDs (`OWNER_ID` or `TRUSTED_USER_IDS`).
-- **Multi-Turn Channel Context**: Retains multi-turn conversation context per Discord channel with a sliding history window.
-- **Fuzzy Target Lookup**: Robust lookup for channels and members supporting:
+- **Strict Execution Guard**: Moderation tool definitions are completely omitted from request payloads for standard users, ensuring Gemini can only execute moderation tasks for authorized user IDs (`OWNER_ID` or `TRUSTED_USER_IDS`).
+- **Context Resolution**: Retains recent multi-turn conversation context (10-15 messages) per Discord channel so natural references ("mute him", "lock this channel", "clear these") resolve accurately.
+- **Fuzzy Target Lookup**: Robust lookup for channels, categories, members, and roles supporting:
   1. Direct Snowflake ID
-  2. Mention syntax (`<#123...>` / `<@!123...>`)
-  3. Exact name match
+  2. Mention syntax (`<#123...>`, `<@!123...>`, `<@&123...>`)
+  3. Exact name / display name match
   4. Case-insensitive partial name match
-- **Automated Moderation Tools**:
-  - `create_voice_channel(channel_name: str, user_limit: int = 0)`
-  - `set_channel_read_only(channel_name: str, read_only: bool)`
-  - `timeout_user(username_or_id: str, duration_minutes: int, reason: str = "No reason provided")`
-  - `purge_messages(channel_name: str, limit: int = 10)`
+- **Comprehensive Moderation Tool Engine**:
+  - **Channel Controls**: `create_text_channel`, `create_voice_channel`, `create_stage_channel`, `create_category`, `delete_channel`, `set_channel_read_only`, `hide_channel`
+  - **Member Moderation**: `ban_user`, `unban_user`, `kick_user`, `timeout_user`, `remove_timeout`, `change_nickname`, `disconnect_member_voice`, `move_member_voice`
+  - **Role Management**: `create_role`, `assign_role`, `remove_role`
+  - **Message Management**: `purge_messages`, `pin_message`, `unpin_message`
+- **Multi-Tool Execution Loop**: Gemini can return and execute multiple tool calls in a single turn for complex multi-step instructions before delivering the final natural response.
 
 ---
 
@@ -50,6 +51,10 @@ When inviting the bot to your server, grant the following permissions:
 - `Manage Channels`
 - `Manage Roles`
 - `Moderate Members`
+- `Ban Members`
+- `Kick Members`
+- `Manage Nicknames`
+- `Move Members`
 - `Manage Messages`
 - `Send Messages`
 - `Read Message History` / `View Channels`

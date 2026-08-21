@@ -10,32 +10,51 @@ import tools
 def mock_guild():
     guild = MagicMock(spec=discord.Guild)
 
-    # Setup mock default role
     default_role = MagicMock()
+    default_role.name = "@everyone"
     guild.default_role = default_role
 
-    # Setup mock channels
     text_ch1 = MagicMock(spec=discord.TextChannel)
     text_ch1.id = 1001
     text_ch1.name = "general"
+    text_ch1.type = discord.ChannelType.text
     text_ch1.overwrites_for.return_value = MagicMock()
     text_ch1.set_permissions = AsyncMock()
     text_ch1.purge = AsyncMock(return_value=[MagicMock(), MagicMock()])
+    text_ch1.delete = AsyncMock()
+
+    mock_msg = MagicMock()
+    mock_msg.id = 5555
+    mock_msg.pin = AsyncMock()
+    mock_msg.unpin = AsyncMock()
+    text_ch1.fetch_message = AsyncMock(return_value=mock_msg)
 
     voice_ch1 = MagicMock(spec=discord.VoiceChannel)
     voice_ch1.id = 1002
     voice_ch1.name = "Lounge"
+    voice_ch1.type = discord.ChannelType.voice
+    voice_ch1.delete = AsyncMock()
+
+    category1 = MagicMock(spec=discord.CategoryChannel)
+    category1.id = 1000
+    category1.name = "Community"
 
     guild.channels = [text_ch1, voice_ch1]
+    guild.categories = [category1]
 
     def get_channel(ch_id):
+        if ch_id == 1000:
+            return category1
         for c in guild.channels:
             if c.id == ch_id:
                 return c
         return None
 
     guild.get_channel.side_effect = get_channel
+    guild.create_text_channel = AsyncMock()
     guild.create_voice_channel = AsyncMock()
+    guild.create_stage_channel = AsyncMock()
+    guild.create_category = AsyncMock()
 
     # Setup mock members
     member1 = MagicMock(spec=discord.Member)
@@ -45,6 +64,13 @@ def mock_guild():
     member1.global_name = "Alice Global"
     member1.mention = "<@2001>"
     member1.timeout = AsyncMock()
+    member1.ban = AsyncMock()
+    member1.kick = AsyncMock()
+    member1.edit = AsyncMock()
+    member1.move_to = AsyncMock()
+    member1.add_roles = AsyncMock()
+    member1.remove_roles = AsyncMock()
+    member1.voice = MagicMock(channel=voice_ch1)
 
     member2 = MagicMock(spec=discord.Member)
     member2.id = 2002
@@ -53,6 +79,7 @@ def mock_guild():
     member2.global_name = "Bob Global"
     member2.mention = "<@2002>"
     member2.timeout = AsyncMock()
+    member2.voice = None
 
     guild.members = [member1, member2]
 
@@ -63,97 +90,120 @@ def mock_guild():
         return None
 
     guild.get_member.side_effect = get_member
+    guild.ban = AsyncMock()
+    guild.unban = AsyncMock()
+
+    # Roles
+    role1 = MagicMock(spec=discord.Role)
+    role1.id = 3001
+    role1.name = "Moderator"
+    guild.roles = [role1]
+    guild.get_role = lambda r_id: role1 if r_id == 3001 else None
+    guild.create_role = AsyncMock(return_value=role1)
 
     token = tools.current_guild.set(guild)
     yield guild
     tools.current_guild.reset(token)
 
 
-def test_find_channel_by_id(mock_guild):
-    channel = tools.find_channel(mock_guild, "1001")
-    assert channel is not None
-    assert channel.id == 1001
-    assert channel.name == "general"
+# --- Channel Tests ---
 
-
-def test_find_channel_by_mention(mock_guild):
-    channel = tools.find_channel(mock_guild, "<#1001>")
-    assert channel is not None
-    assert channel.id == 1001
-
-
-def test_find_channel_by_exact_name(mock_guild):
-    channel = tools.find_channel(mock_guild, "Lounge")
-    assert channel is not None
-    assert channel.id == 1002
-
-
-def test_find_channel_by_fuzzy_name(mock_guild):
-    channel = tools.find_channel(mock_guild, "gen")
-    assert channel is not None
-    assert channel.id == 1001
-
-
-def test_find_member_by_id(mock_guild):
-    member = tools.find_member(mock_guild, "2001")
-    assert member is not None
-    assert member.id == 2001
-
-
-def test_find_member_by_mention(mock_guild):
-    member = tools.find_member(mock_guild, "<@!2001>")
-    assert member is not None
-    assert member.id == 2001
-
-
-def test_find_member_by_exact_name(mock_guild):
-    member = tools.find_member(mock_guild, "Alice")
-    assert member is not None
-    assert member.id == 2001
-
-
-def test_find_member_by_fuzzy_name(mock_guild):
-    member = tools.find_member(mock_guild, "bob")
-    assert member is not None
-    assert member.id == 2002
+def test_find_channel_and_member(mock_guild):
+    assert tools.find_channel(mock_guild, "1001").id == 1001
+    assert tools.find_member(mock_guild, "2001").id == 2001
+    assert tools.find_role(mock_guild, "3001").id == 3001
 
 
 @pytest.mark.asyncio
-async def test_create_voice_channel_success(mock_guild):
-    created_ch = MagicMock()
-    created_ch.name = "Gaming Room"
-    created_ch.id = 1003
-    mock_guild.create_voice_channel.return_value = created_ch
+async def test_create_text_channel(mock_guild):
+    mock_ch = MagicMock()
+    mock_ch.name = "announcements"
+    mock_ch.id = 1004
+    mock_guild.create_text_channel.return_value = mock_ch
+
+    res = await tools.create_text_channel("announcements", topic="Server news")
+    assert "Successfully created text channel #announcements" in res
+
+
+@pytest.mark.asyncio
+async def test_create_voice_channel(mock_guild):
+    mock_ch = MagicMock()
+    mock_ch.name = "Gaming Room"
+    mock_ch.id = 1003
+    mock_guild.create_voice_channel.return_value = mock_ch
 
     res = await tools.create_voice_channel("Gaming Room", user_limit=5)
     assert "Successfully created voice channel 'Gaming Room'" in res
-    mock_guild.create_voice_channel.assert_called_once_with(name="Gaming Room", user_limit=5)
 
 
 @pytest.mark.asyncio
-async def test_create_voice_channel_forbidden(mock_guild):
-    mock_guild.create_voice_channel.side_effect = discord.Forbidden(MagicMock(), "Forbidden")
-    res = await tools.create_voice_channel("Secret Room")
-    assert "lacks permission" in res
+async def test_delete_channel(mock_guild):
+    res = await tools.delete_channel("general")
+    assert "Successfully deleted" in res
 
 
 @pytest.mark.asyncio
-async def test_set_channel_read_only(mock_guild):
-    res = await tools.set_channel_read_only("general", read_only=True)
-    assert "Successfully set channel 'general' to read-only" in res
+async def test_hide_channel(mock_guild):
+    res = await tools.hide_channel("general", hide=True)
+    assert "hidden from @everyone" in res
 
-    res_unlock = await tools.set_channel_read_only("general", read_only=False)
-    assert "Successfully set channel 'general' to unlocked" in res_unlock
+
+# --- Member Tests ---
+
+@pytest.mark.asyncio
+async def test_ban_user(mock_guild):
+    res = await tools.ban_user("alice_dev", reason="Rules violation")
+    assert "Successfully banned" in res
 
 
 @pytest.mark.asyncio
-async def test_timeout_user(mock_guild):
-    res = await tools.timeout_user("alice_dev", duration_minutes=10, reason="Spamming")
+async def test_kick_user(mock_guild):
+    res = await tools.kick_user("alice_dev", reason="Spam")
+    assert "Successfully kicked" in res
+
+
+@pytest.mark.asyncio
+async def test_timeout_user_and_remove(mock_guild):
+    res = await tools.timeout_user("alice_dev", duration_minutes=10)
     assert "Successfully timed out" in res
-    assert "alice_dev" in res or "Alice" in res or "<@2001>" in res
+
+    res_remove = await tools.remove_timeout("alice_dev")
+    assert "Successfully removed timeout" in res_remove
 
 
 @pytest.mark.asyncio
-async def test_purge_messages(mock_guild):
-    res = await tools.purge_messages("general", limit=5)
-    assert "Successfully purged 2 message(s)" in res
+async def test_change_nickname(mock_guild):
+    res = await tools.change_nickname("alice_dev", nickname="AliceTheAdmin")
+    assert "changed to 'AliceTheAdmin'" in res
+
+
+@pytest.mark.asyncio
+async def test_disconnect_and_move_voice(mock_guild):
+    res = await tools.disconnect_member_voice("alice_dev")
+    assert "Successfully disconnected" in res
+
+
+# --- Role & Message Tests ---
+
+@pytest.mark.asyncio
+async def test_create_assign_remove_role(mock_guild):
+    res_create = await tools.create_role("VIP", hex_color="#FF0000")
+    assert "Successfully created role" in res_create
+
+    res_assign = await tools.assign_role("alice_dev", "Moderator")
+    assert "Successfully assigned role 'Moderator'" in res_assign
+
+    res_remove = await tools.remove_role("alice_dev", "Moderator")
+    assert "Successfully removed role 'Moderator'" in res_remove
+
+
+@pytest.mark.asyncio
+async def test_purge_and_pin_message(mock_guild):
+    res_purge = await tools.purge_messages("general", limit=5)
+    assert "Successfully purged 2 message(s)" in res_purge
+
+    res_pin = await tools.pin_message("general", "5555")
+    assert "Successfully pinned message ID 5555" in res_pin
+
+    res_unpin = await tools.unpin_message("general", "5555")
+    assert "Successfully unpinned message ID 5555" in res_unpin

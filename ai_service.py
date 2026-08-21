@@ -19,23 +19,41 @@ MODEL_NAME = "gemini-2.5-flash"
 SYSTEM_INSTRUCTION = (
     "You are a witty, grounded, chill friend who talks naturally in Discord servers. "
     "Keep your tone casual, friendly, and conversational, like a real Discord community member. "
-    "When interacting with authorized moderators, you have access to server moderation tools "
-    "which you can execute on their behalf. Always respond naturally after executing any requested moderation tools."
+    "When interacting with authorized moderators, you have access to full server moderation tools "
+    "(channel control, member bans/kicks/timeouts/nicknames/voice moves, role management, and message purging/pinning). "
+    "You can invoke multiple tools in a single turn if a user gives a multi-step instruction. "
+    "Always respond naturally and casually after executing any requested tools."
 )
 
 MODERATION_TOOLS = [
+    # Channel controls
+    tools.create_text_channel,
     tools.create_voice_channel,
+    tools.create_stage_channel,
+    tools.create_category,
+    tools.delete_channel,
     tools.set_channel_read_only,
+    tools.hide_channel,
+    # Member moderation
+    tools.ban_user,
+    tools.unban_user,
+    tools.kick_user,
     tools.timeout_user,
+    tools.remove_timeout,
+    tools.change_nickname,
+    tools.disconnect_member_voice,
+    tools.move_member_voice,
+    # Role management
+    tools.create_role,
+    tools.assign_role,
+    tools.remove_role,
+    # Message management
     tools.purge_messages,
+    tools.pin_message,
+    tools.unpin_message,
 ]
 
-TOOL_MAP = {
-    "create_voice_channel": tools.create_voice_channel,
-    "set_channel_read_only": tools.set_channel_read_only,
-    "timeout_user": tools.timeout_user,
-    "purge_messages": tools.purge_messages,
-}
+TOOL_MAP = {func.__name__: func for func in MODERATION_TOOLS}
 
 # Per-channel history storage
 CHANNEL_HISTORIES: Dict[int, List[types.Content]] = {}
@@ -96,7 +114,7 @@ async def process_chat_message(
         )
         history.append(user_content)
 
-        # Configure tools only if user is authorized
+        # Configure tools ONLY if user is authorized
         tool_config = MODERATION_TOOLS if is_authorized else None
 
         gen_config = types.GenerateContentConfig(
@@ -104,7 +122,7 @@ async def process_chat_message(
             tools=tool_config,
         )
 
-        max_turns = 5
+        max_turns = 10
         turn_count = 0
 
         while turn_count < max_turns:
@@ -120,7 +138,7 @@ async def process_chat_message(
             if response.candidates and response.candidates[0].content:
                 history.append(response.candidates[0].content)
 
-            # Check for function calls
+            # Check for function calls (Gemini can return multiple tool calls in a single turn)
             if response.function_calls:
                 tool_response_parts = []
                 for function_call in response.function_calls:
@@ -132,7 +150,6 @@ async def process_chat_message(
                     if func_name in TOOL_MAP:
                         tool_func = TOOL_MAP[func_name]
                         try:
-                            # Execute the moderation tool function
                             result_str = await tool_func(**func_args)
                         except Exception as e:
                             result_str = f"Error executing {func_name}: {str(e)}"
