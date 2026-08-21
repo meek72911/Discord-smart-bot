@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Optional, Dict, List
 import discord
 from google import genai
@@ -76,6 +77,37 @@ def clear_channel_history(channel_id: int):
         del CHANNEL_HISTORIES[channel_id]
 
 
+async def _generate_content_with_retry(
+    ai_client: genai.Client,
+    model: str,
+    contents: List[types.Content],
+    gen_config: types.GenerateContentConfig,
+    retries: int = 3,
+    base_delay: float = 1.0,
+) -> types.GenerateContentResponse:
+    """Executes generate_content in a thread pool with exponential backoff on transient errors."""
+    for attempt in range(retries):
+        try:
+            response = await asyncio.to_thread(
+                ai_client.models.generate_content,
+                model=model,
+                contents=contents,
+                config=gen_config,
+            )
+            return response
+        except Exception as e:
+            err_str = str(e).lower()
+            is_transient = any(keyword in err_str for keyword in [
+                "429", "503", "500", "resource_exhausted", "quota", "timeout", "rate limit", "temporarily unavailable"
+            ])
+            if is_transient and attempt < retries - 1:
+                delay = base_delay * (2 ** attempt)
+                logger.warning(f"Transient Gemini API error (attempt {attempt + 1}/{retries}): {e}. Retrying in {delay:.1f}s...")
+                await asyncio.sleep(delay)
+            else:
+                raise e
+
+
 async def process_chat_message(
     guild: Optional[discord.Guild],
     channel_id: int,
@@ -128,10 +160,11 @@ async def process_chat_message(
         while turn_count < max_turns:
             turn_count += 1
 
-            response = ai_client.models.generate_content(
+            response = await _generate_content_with_retry(
+                ai_client=ai_client,
                 model=MODEL_NAME,
                 contents=history,
-                config=gen_config,
+                gen_config=gen_config,
             )
 
             # Append model response content to history if available

@@ -20,6 +20,10 @@ if _trusted_raw:
         if item.isdigit():
             TRUSTED_USER_IDS.add(int(item))
 
+# Parse MOD_LOG_CHANNEL_ID (optional)
+_mod_log_raw = os.getenv("MOD_LOG_CHANNEL_ID", "").strip()
+MOD_LOG_CHANNEL_ID = int(_mod_log_raw) if _mod_log_raw.isdigit() else None
+
 def is_authorized_user(user_id: int) -> bool:
     """Check if a Discord user ID is authorized to use moderation tools."""
     if user_id is None:

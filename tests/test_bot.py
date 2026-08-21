@@ -18,6 +18,22 @@ def test_clean_message_content():
     assert cleaned_nick == "hello bot"
 
 
+def test_cooldown_tracking():
+    bot.USER_COOLDOWNS.clear()
+
+    # First time: not on cooldown
+    on_cd, _ = bot.is_user_on_cooldown(111, cooldown_seconds=3.0)
+    assert on_cd is False
+
+    # Update cooldown
+    bot.update_user_cooldown(111)
+
+    # Immediately after: on cooldown
+    on_cd2, remaining = bot.is_user_on_cooldown(111, cooldown_seconds=3.0)
+    assert on_cd2 is True
+    assert remaining > 0
+
+
 @pytest.mark.asyncio
 async def test_on_message_ignores_bot():
     message = MagicMock(spec=discord.Message)

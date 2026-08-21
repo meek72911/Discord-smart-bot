@@ -16,9 +16,13 @@ An intelligent, production-ready Discord bot built with Python (`discord.py`) an
   4. Case-insensitive partial name match
 - **Comprehensive Moderation Tool Engine**:
   - **Channel Controls**: `create_text_channel`, `create_voice_channel`, `create_stage_channel`, `create_category`, `delete_channel`, `set_channel_read_only`, `hide_channel`
-  - **Member Moderation**: `ban_user`, `unban_user`, `kick_user`, `timeout_user`, `remove_timeout`, `change_nickname`, `disconnect_member_voice`, `move_member_voice`
+  - **Member Moderation**: `ban_user`, `unban_user`, `kick_user`, `timeout_user` (clamped up to 28 days / 40320 mins), `remove_timeout`, `change_nickname`, `disconnect_member_voice`, `move_member_voice`
   - **Role Management**: `create_role`, `assign_role`, `remove_role`
   - **Message Management**: `purge_messages`, `pin_message`, `unpin_message`
+- **Moderation Audit Logging**: Optional `MOD_LOG_CHANNEL_ID` setting to automatically log successful moderation actions to a designated Discord channel.
+- **Resilience & Rate Limiting**:
+  - **Exponential Backoff**: Automated retries with exponential backoff on transient Gemini API errors (e.g. 429 rate limits, 503 unavailable).
+  - **Per-User Rate Limiting**: Throttles user requests with a cooldown to protect Gemini API quota.
 - **Multi-Tool Execution Loop**: Gemini can return and execute multiple tool calls in a single turn for complex multi-step instructions before delivering the final natural response.
 
 ---
@@ -28,8 +32,8 @@ An intelligent, production-ready Discord bot built with Python (`discord.py`) an
 ```
 ├── bot.py                # Main entry point and Discord client event loop
 ├── config.py             # Environment variable loader and auth check
-├── ai_service.py         # Gemini API setup, persona prompt, and tool execution loop
-├── tools.py              # Discord API actions exposed as Gemini functions
+├── ai_service.py         # Gemini API setup, persona prompt, retry loop, and tool execution
+├── tools.py              # Discord API actions exposed as Gemini functions & audit logger
 ├── tests/                # Automated pytest unit test suite
 ├── requirements.txt      # Python dependencies
 ├── .env.example          # Template for environment variables
@@ -86,10 +90,12 @@ DISCORD_BOT_TOKEN=your_discord_bot_token_here
 GEMINI_API_KEY=your_gemini_api_key_here
 OWNER_ID=123456789012345678
 TRUSTED_USER_IDS=234567890123456789,345678901234567890
+MOD_LOG_CHANNEL_ID=987654321098765432
 ```
 
 - **`OWNER_ID`**: Your primary Discord User ID (integer).
 - **`TRUSTED_USER_IDS`**: Comma-separated list of additional authorized Discord User IDs (integers).
+- **`MOD_LOG_CHANNEL_ID`**: Optional channel ID to log moderation actions.
 
 ---
 

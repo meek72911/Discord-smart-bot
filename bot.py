@@ -1,6 +1,8 @@
 import logging
 import re
 import sys
+import time
+from typing import Dict
 import discord
 
 import config
@@ -21,6 +23,10 @@ intents.guilds = True
 
 client = discord.Client(intents=intents)
 
+# Per-user cooldown tracking (in seconds)
+USER_COOLDOWNS: Dict[int, float] = {}
+COOLDOWN_SECONDS = 3.0
+
 
 def clean_message_content(content: str, bot_user: discord.User) -> str:
     """Removes bot mention tags from message content."""
@@ -31,11 +37,28 @@ def clean_message_content(content: str, bot_user: discord.User) -> str:
     return cleaned
 
 
+def is_user_on_cooldown(user_id: int, cooldown_seconds: float = COOLDOWN_SECONDS) -> tuple[bool, float]:
+    """Checks if a user is on cooldown. Returns (is_on_cooldown, remaining_seconds)."""
+    now = time.time()
+    last_time = USER_COOLDOWNS.get(user_id, 0.0)
+    elapsed = now - last_time
+    if elapsed < cooldown_seconds:
+        return True, round(cooldown_seconds - elapsed, 1)
+    return False, 0.0
+
+
+def update_user_cooldown(user_id: int):
+    """Updates the last interaction timestamp for a user."""
+    USER_COOLDOWNS[user_id] = time.time()
+
+
 @client.event
 async def on_ready():
     logger.info(f"Bot logged in as {client.user} (ID: {client.user.id})")
     logger.info(f"Owner ID: {config.OWNER_ID}")
     logger.info(f"Trusted User IDs: {config.TRUSTED_USER_IDS}")
+    if config.MOD_LOG_CHANNEL_ID:
+        logger.info(f"Mod Audit Log Channel ID: {config.MOD_LOG_CHANNEL_ID}")
 
 
 @client.event
@@ -60,6 +83,18 @@ async def on_message(message: discord.Message):
     # Bot should only respond if mentioned, replied to, or in DM
     if not (bot_mentioned or is_reply_to_bot or is_dm):
         return
+
+    # Check per-user cooldown
+    on_cooldown, remaining = is_user_on_cooldown(message.author.id)
+    if on_cooldown:
+        await message.reply(
+            f"Whoa, slow down! Please wait {remaining:.1f}s before sending another message.",
+            mention_author=False,
+        )
+        return
+
+    # Update user cooldown
+    update_user_cooldown(message.author.id)
 
     # Clean message content
     cleaned_content = clean_message_content(message.content, client.user)

@@ -1,9 +1,10 @@
 import pytest
 import datetime
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 import discord
 
 import tools
+import config
 
 
 @pytest.fixture
@@ -13,6 +14,9 @@ def mock_guild():
     default_role = MagicMock()
     default_role.name = "@everyone"
     guild.default_role = default_role
+
+    mock_log_channel = MagicMock(spec=discord.TextChannel)
+    mock_log_channel.send = AsyncMock()
 
     text_ch1 = MagicMock(spec=discord.TextChannel)
     text_ch1.id = 1001
@@ -39,12 +43,14 @@ def mock_guild():
     category1.id = 1000
     category1.name = "Community"
 
-    guild.channels = [text_ch1, voice_ch1]
+    guild.channels = [text_ch1, voice_ch1, mock_log_channel]
     guild.categories = [category1]
 
     def get_channel(ch_id):
         if ch_id == 1000:
             return category1
+        if ch_id == 9999:
+            return mock_log_channel
         for c in guild.channels:
             if c.id == ch_id:
                 return c
@@ -163,12 +169,21 @@ async def test_kick_user(mock_guild):
 
 
 @pytest.mark.asyncio
-async def test_timeout_user_and_remove(mock_guild):
-    res = await tools.timeout_user("alice_dev", duration_minutes=10)
+async def test_timeout_user_and_clamping(mock_guild):
+    res = await tools.timeout_user("alice_dev", duration_minutes=100000)
     assert "Successfully timed out" in res
+    assert "40320 minute(s)" in res
 
-    res_remove = await tools.remove_timeout("alice_dev")
-    assert "Successfully removed timeout" in res_remove
+
+@pytest.mark.asyncio
+async def test_audit_log_channel_notification(mock_guild):
+    with patch.object(config, "MOD_LOG_CHANNEL_ID", 9999):
+        res = await tools.kick_user("alice_dev", reason="Test audit log")
+        assert "Successfully kicked" in res
+        log_channel = mock_guild.get_channel(9999)
+        log_channel.send.assert_called_once()
+        call_arg = log_channel.send.call_args[0][0]
+        assert "Mod Audit Log" in call_arg
 
 
 @pytest.mark.asyncio
