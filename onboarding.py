@@ -83,7 +83,7 @@ def setup_card_embed(guild: discord.Guild, configured: bool = False) -> discord.
         embed.set_thumbnail(url=guild.icon.url)
 
     embed.set_footer(
-        text=f"Smart Bot OS v5.0 • Mention me anytime in any channel • Zero-Cost Local Intelligence",
+        text=f"Smart Bot OS v5.0 • Mention me anytime in any channel • Enterprise AI Intelligence",
         icon_url=guild.me.display_avatar.url if guild.me else None,
     )
     return embed

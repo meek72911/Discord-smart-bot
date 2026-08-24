@@ -243,9 +243,6 @@ async def on_guild_join(guild: discord.Guild):
         await _post_setup_card(channel, guild)
 
 
-ANNOUNCED_GUILDS = set()
-
-
 @client.event
 async def on_ready():
     logger.info(f"Bot logged in as {client.user} (ID: {client.user.id})")
@@ -261,22 +258,25 @@ async def on_ready():
         )
     except Exception:
         pass
-    # First-run banner: post setup card once per unconfigured guild per session
-    for guild in client.guilds:
-        if guild.id in ANNOUNCED_GUILDS:
-            continue
-        ANNOUNCED_GUILDS.add(guild.id)
-        if not _is_guild_configured(guild.id):
-            channel = guild.system_channel
-            if channel is None or not channel.permissions_for(guild.me).send_messages:
-                for ch in guild.text_channels:
-                    if ch.permissions_for(guild.me).send_messages:
-                        channel = ch
-                        break
-            if channel:
-                await _post_setup_card(channel, guild)
     # Start background loops
     client.loop.create_task(_reminder_loop())
+
+
+@client.event
+async def on_guild_join(guild: discord.Guild):
+    """Post welcome setup card only when the bot first joins a new server."""
+    logger.info(f"Bot joined new guild: {guild.name} (ID: {guild.id})")
+    channel = guild.system_channel
+    if channel is None or not channel.permissions_for(guild.me).send_messages:
+        for ch in guild.text_channels:
+            if ch.permissions_for(guild.me).send_messages:
+                channel = ch
+                break
+    if channel:
+        try:
+            await _post_setup_card(channel, guild)
+        except Exception as e:
+            logger.warning(f"Failed to post welcome card on join: {e}")
 
 
 # =========================================================
