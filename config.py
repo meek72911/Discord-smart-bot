@@ -28,11 +28,13 @@ MOD_LOG_CHANNEL_ID = int(_mod_log_raw) if _mod_log_raw.isdigit() else None
 CHAT_MODEL = os.getenv("CHAT_MODEL", "gemini-3.6-flash").strip()
 FAST_MODEL = os.getenv("FAST_MODEL", "gemini-3.5-flash-lite").strip()
 
-# --- OpenRouter Dual-Engine Architecture ---
+# --- OpenRouter & Groq Multi-Engine Architecture ---
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "").strip()
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free").strip()
 OPENROUTER_REASONING_MODEL = os.getenv("OPENROUTER_REASONING_MODEL", "nvidia/nemotron-3-ultra-550b-a55b:free").strip()
-CHAT_PROVIDER = os.getenv("CHAT_PROVIDER", "gemini").strip().lower()  # gemini | openrouter
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b").strip()
+CHAT_PROVIDER = os.getenv("CHAT_PROVIDER", "groq").strip().lower()  # groq | gemini | openrouter
 
 # --- Guild allowlist (empty = allow all guilds) ---
 ALLOWED_GUILD_IDS = set()

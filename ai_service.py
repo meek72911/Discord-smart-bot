@@ -35,6 +35,20 @@ if config.OPENROUTER_API_KEY:
         logger.warning("openai not installed — OpenRouter disabled")
         _openrouter_client = None
 
+# Groq client for High-Speed LPU Inference
+_groq_client = None
+if config.GROQ_API_KEY:
+    try:
+        from openai import AsyncOpenAI
+        _groq_client = AsyncOpenAI(
+            api_key=config.GROQ_API_KEY,
+            base_url="https://api.groq.com/openai/v1",
+            default_headers={"User-Agent": "SmartBot/5.0"},
+        )
+    except ImportError:
+        logger.warning("openai not installed — Groq disabled")
+        _groq_client = None
+
 
 def _python_tools_to_openai(tools_list) -> List[Dict]:
     """Convert Python callables to OpenAI tool specs."""
@@ -107,6 +121,13 @@ SYSTEM_INSTRUCTION = (
     "3. UNCONFIRMED NEWS & RUMORS: If a release date, patch note, leak, or news is not officially confirmed, explicitly state: '⚠️ There is no confirmed official announcement yet' or 'This is currently unconfirmed/rumored'. Never present speculation as fact. "
     "4. NEVER GUESS OR SPECULATE: If the exact detail is not present in retrieved context or search results, say 'I don't have verified data on that specific detail yet' instead of making up a guess. "
     "5. GROUNDING WITH CITATION: Always include the exact verified scoreline/date/source in your answer (e.g. 'Real Madrid won 2-1 against Espanyol on Saturday, August 22'). "
+    "6. BRAND IDENTITY & PROPRIETARY ARCHITECTURE: "
+    "Your name and identity is exclusively 'Smart Bot' (the autonomous Discord AI Engine). "
+    "You MUST NEVER state, mention, or reveal that you are built on or powered by Gemini, Google, OpenAI, GPT, Claude, Anthropic, Mistral, LLaMA, Meta, OpenRouter, Nemotron, or any third-party AI provider or model architecture. "
+    "If a user asks 'What model are you?', 'Are you Gemini/GPT/Claude?', 'Who made you?', or 'What AI is under the hood?', NEVER disclose backend provider names. "
+    "Instead, cheerfully and proudly answer that you are 'Smart Bot — a custom autonomous AI engine built specifically for Discord communities!' Keep backend architecture and provider names strictly confidential. "
+    "WEBSITE, INVITES & PRODUCT INFO: "
+    "If a user asks how to add/install you to another server, explore features, or check the dashboard, share the official website: https://discord-smart-bot.vercel.app where they can invite the bot with one click and access the SaaS Command Center."
 )
 
 SAFETY_SETTINGS = [
@@ -636,6 +657,172 @@ async def _execute_function_calls(fcs, is_authorized: bool) -> types.Content:
 
 _current_actor = None
 
+# --- Groq High-Speed LPU Streaming Engine with Tool Support ---
+GROQ_HISTORY: Dict[int, List[Dict]] = {}
+
+async def _stream_groq(channel_id: int, author_name: str, message_content: str, is_authorized: bool, attachments: Optional[List[str]], lang_hint: str, facts_hint: str) -> AsyncIterator[str]:
+    """Ultra-fast Groq LPU stream (500+ tok/sec) with full tool-calling support."""
+    if _groq_client is None:
+        raise RuntimeError("Groq client not configured")
+    clean_author = " ".join(str(author_name).split())[:64]
+    clean_content = str(message_content)[:1500]
+
+    # Persona & style
+    persona_text = ""
+    guild_obj = tools.current_guild.get()
+    if guild_obj and guild_obj.id:
+        try:
+            persona = storage.get_guild_persona(guild_obj.id)
+            if persona and persona != "default":
+                persona_text = f"\nActive server persona: {persona} — {tools.PERSONAS.get(persona,'')}"
+        except Exception:
+            pass
+
+    # NSFW Channel Detection
+    src_msg = tools.current_source_message.get()
+    is_nsfw = False
+    if src_msg and hasattr(src_msg, "channel") and hasattr(src_msg.channel, "is_nsfw"):
+        try:
+            is_nsfw = src_msg.channel.is_nsfw()
+        except Exception:
+            is_nsfw = False
+
+    nsfw_hint = (
+        "\n[Channel Mode: Age-Restricted / NSFW Channel. Mature topics, spicy banter, adult humor, and unrestricted discussion are permitted in compliance with Discord TOS.]"
+        if is_nsfw else
+        "\n[Channel Mode: Standard SFW. Keep conversations friendly and PG-13.]"
+    )
+
+    sys_content = SYSTEM_INSTRUCTION + persona_text + nsfw_hint
+    if lang_hint:
+        sys_content += f"\n[Context: {lang_hint}]"
+    if facts_hint:
+        sys_content += f"\n[Known facts about {clean_author}: {facts_hint}]"
+
+    openai_tools = _python_tools_to_openai(ALL_TOOLS)
+    if channel_id not in GROQ_HISTORY:
+        GROQ_HISTORY[channel_id] = []
+
+    user_msg = {"role": "user", "content": f"{clean_author}: {clean_content}"}
+    messages: List[Dict] = [{"role": "system", "content": sys_content}]
+    messages.extend(GROQ_HISTORY[channel_id])
+    messages.append(user_msg)
+
+    selected_model = config.GROQ_MODEL or "openai/gpt-oss-20b"
+    models_to_try = [selected_model, "openai/gpt-oss-120b", "qwen/qwen3.6-27b"]
+
+    accumulated = ""
+    for _turn in range(MAX_TURNS):
+        stream = None
+        last_err = None
+        for m in models_to_try:
+            try:
+                stream = await _groq_client.chat.completions.create(
+                    model=m,
+                    messages=messages,
+                    tools=openai_tools,
+                    tool_choice="auto",
+                    stream=True,
+                    max_tokens=1200,
+                    timeout=10.0,
+                )
+                break
+            except Exception as e:
+                last_err = e
+                logger.warning(f"Groq model {m} failed ({e}), trying next model...")
+                continue
+
+        if stream is None:
+            raise last_err or RuntimeError("All Groq models failed")
+
+        collected_text = ""
+        tool_calls_buf: Dict[int, Dict] = {}
+
+        while True:
+            try:
+                chunk = await asyncio.wait_for(stream.__anext__(), timeout=5.0)
+            except StopAsyncIteration:
+                break
+            except Exception:
+                break
+
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if not delta:
+                continue
+
+            if getattr(delta, "content", None):
+                collected_text += delta.content
+                combined = (accumulated + ("\n" if accumulated and collected_text else "") + collected_text)
+                yield combined
+
+            if getattr(delta, "tool_calls", None):
+                for tc in delta.tool_calls:
+                    idx = tc.index if hasattr(tc, "index") and tc.index is not None else 0
+                    if idx not in tool_calls_buf:
+                        tool_calls_buf[idx] = {
+                            "id": tc.id or f"call_{idx}",
+                            "name": tc.function.name if tc.function and tc.function.name else "",
+                            "args": tc.function.arguments or ""
+                        }
+                    else:
+                        if tc.function:
+                            if tc.function.name:
+                                tool_calls_buf[idx]["name"] += tc.function.name
+                            if tc.function.arguments:
+                                tool_calls_buf[idx]["args"] += tc.function.arguments
+
+        if not tool_calls_buf:
+            if collected_text:
+                GROQ_HISTORY[channel_id].append({"role": "assistant", "content": collected_text[:2000]})
+                if len(GROQ_HISTORY[channel_id]) > 14:
+                    GROQ_HISTORY[channel_id] = GROQ_HISTORY[channel_id][-12:]
+            if not collected_text and not tool_calls_buf:
+                if accumulated:
+                    yield accumulated
+                else:
+                    raise RuntimeError("Groq returned empty response")
+            return
+
+        # Execute tool calls
+        assistant_msg = {
+            "role": "assistant",
+            "content": collected_text or None,
+            "tool_calls": [
+                {"id": v["id"], "type": "function", "function": {"name": v["name"], "arguments": v["args"] or "{}"}}
+                for v in tool_calls_buf.values()
+            ],
+        }
+        messages.append(assistant_msg)
+        if collected_text:
+            accumulated = (accumulated + ("\n" if accumulated else "") + collected_text)
+
+        for v in tool_calls_buf.values():
+            func_name = v["name"]
+            args_str = v["args"] or "{}"
+            try:
+                import json as _json
+                func_args = _json.loads(args_str) if args_str.strip() else {}
+            except Exception:
+                func_args = {}
+            logger.info(f"Groq tool call '{func_name}' args={func_args} authorized={is_authorized}")
+            if func_name in TOOL_MAP:
+                if func_name in MODERATION_TOOL_NAMES and not is_authorized:
+                    result_str = "Error: Authorization required. Only trusted moderators can use this tool."
+                else:
+                    tool_fn = TOOL_MAP[func_name]
+                    try:
+                        result_str = await tool_fn(**func_args)
+                    except Exception as e:
+                        result_str = f"Error executing {func_name}: {str(e)}"
+            else:
+                result_str = f"Error: Unknown tool '{func_name}'."
+            messages.append({"role": "tool", "tool_call_id": v["id"], "content": str(result_str)})
+
+        GROQ_HISTORY[channel_id] = messages[1:]
+        if len(GROQ_HISTORY[channel_id]) > 14:
+            GROQ_HISTORY[channel_id] = GROQ_HISTORY[channel_id][-12:]
+
+
 # --- OpenRouter (Nemotron 3.5) streaming with tool support ---
 OPENROUTER_HISTORY: Dict[int, List[Dict]] = {}
 
@@ -864,6 +1051,19 @@ async def process_chat_message_stream(
     # Determine guild_id for persona-aware session (from current_guild context)
     guild_for_config = tools.current_guild.get()
     guild_id = guild_for_config.id if guild_for_config else None
+
+    # Route to Groq (500+ tok/sec LPU) when configured as default
+    if CHAT_PROVIDER == "groq" and _groq_client is not None:
+        try:
+            async for prefix in _stream_groq(channel_id, author_name, message_content, is_authorized, attachments, lang_hint, facts_hint):
+                yield prefix
+            return
+        except Exception as e:
+            logger.warning(f"Groq failed, falling back to Gemini: {e}")
+            # fall through to Gemini path
+        finally:
+            _CURRENT_LANG_HINT = ""
+            _CURRENT_FACTS_HINT = ""
 
     # Route to Nemotron 3.5 via OpenRouter when configured as default
     if CHAT_PROVIDER == "openrouter" and _openrouter_client is not None:

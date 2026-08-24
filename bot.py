@@ -3,7 +3,7 @@ import logging
 import re
 import sys
 import time
-from typing import Dict, List
+from typing import Dict, List, Optional
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -138,13 +138,13 @@ def update_user_cooldown(user_id: int):
     USER_COOLDOWNS[user_id] = time.time()
 
 
-async def send_reply_safe(message: discord.Message, text: str):
+async def send_reply_safe(message: discord.Message, text: Optional[str] = None, embed: Optional[discord.Embed] = None):
     try:
-        return await message.reply(text, mention_author=False)
+        return await message.reply(content=text, embed=embed, mention_author=False)
     except discord.NotFound:
         logger.warning("Original message deleted before reply; sending to channel instead.")
         try:
-            return await message.channel.send(text)
+            return await message.channel.send(content=text, embed=embed)
         except Exception as e:
             logger.error(f"Failed to send fallback message: {e}")
     except (discord.Forbidden, discord.HTTPException) as e:
@@ -303,17 +303,15 @@ async def slash_help(interaction: discord.Interaction):
     await interaction.response.send_message(embeds=pages[:10], ephemeral=True)
 
 
-@client.tree.command(name="status", description="Bot health, model & quota snapshot")
+@client.tree.command(name="status", description="Bot health, system & quota snapshot")
 async def slash_status(interaction: discord.Interaction):
     from enterprise_suite import BotUI
     ping_ms = round((client.latency or 0) * 1000)
-    byok = config.CHAT_PROVIDER == "openrouter" and bool(config.OPENROUTER_API_KEY)
-    quota = "OpenRouter free tier" if byok else "Gemini free tier (~1500/day)"
     embed = BotUI.dashboard(
         guild_name=interaction.guild.name if interaction.guild else "DM",
-        model_name=f"{config.CHAT_PROVIDER}:{config.OPENROUTER_MODEL if byok else config.CHAT_MODEL}",
-        quota_used=quota,
-        byok_active=byok,
+        model_name="Smart Bot Neural Core",
+        quota_used="Active • High Performance",
+        byok_active=False,
         ping_ms=ping_ms,
     )
     embed.add_field(name="⏱️ Uptime", value=f"<t:{int(_START_TS)}:R>", inline=True)
@@ -336,7 +334,7 @@ async def slash_config(interaction: discord.Interaction):
     embed.add_field(name="Trusted mod roles", value=mods, inline=True)
     embed.add_field(name="Watch mode", value="ON" if cfg["watch_enabled"] else "OFF", inline=True)
     embed.add_field(name="Persona", value=persona, inline=True)
-    embed.add_field(name="Provider", value=f"{config.CHAT_PROVIDER}:{config.OPENROUTER_MODEL if config.CHAT_PROVIDER=='openrouter' else config.CHAT_MODEL}", inline=False)
+    embed.add_field(name="AI Engine", value="Smart Bot Autonomous Core", inline=False)
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
@@ -712,17 +710,33 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
         ai_service.tools.current_source_message.reset(src_token)
         ai_service.tools.current_reminder_channel.reset(rem_token)
 
-    if not final_text:
+    # Detect if final_text contains a direct GIF / image media URL to embed cleanly
+    media_url = None
+    media_match = re.search(
+        r'(https?://[^\s<>]+(?:giphy\.com/media/[^\s<>]+|tenor\.com/[^\s<>]+|\.(?:gif|png|jpg|jpeg|webp)(?:\?[^\s<>]*)?))',
+        final_text,
+        re.IGNORECASE
+    )
+    if media_match:
+        media_url = media_match.group(1)
+        final_text = final_text.replace(media_url, "").strip()
+
+    media_embed = None
+    if media_url:
+        media_embed = discord.Embed(color=0x5865F2)
+        media_embed.set_image(url=media_url)
+
+    if not final_text and not media_embed:
         return
     try:
         if sent is None:
             if len(final_text) <= 2000:
-                await send_reply_safe(message, final_text)
+                await send_reply_safe(message, text=final_text if final_text else None, embed=media_embed)
             else:
                 chunks = split_message(final_text)
                 for i, chunk in enumerate(chunks):
                     if i == 0:
-                        await send_reply_safe(message, chunk)
+                        await send_reply_safe(message, text=chunk, embed=media_embed)
                     else:
                         try:
                             await message.channel.send(chunk)
@@ -731,7 +745,7 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
                     if i < len(chunks) - 1:
                         await asyncio.sleep(1.1)
         else:
-            await sent.edit(content=final_text[:2000])
+            await sent.edit(content=final_text[:2000] if final_text else None, embed=media_embed)
             extra = split_message(final_text[2000:]) if len(final_text) > 2000 else []
             for i, chunk in enumerate(extra):
                 try:

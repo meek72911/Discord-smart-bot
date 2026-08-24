@@ -1,16 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  --bg-dark: #07080d;
-  --bg-card: #0e1017;
-  --bg-card-hover: #141722;
+  --bg-cosmic: #06080D;
+  --bg-surface: #0B0E17;
+  --bg-card: #0F1422;
+  --bg-card-hover: #161D30;
+  --bg-glass: rgba(15, 20, 34, 0.78);
+  
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(88, 101, 242, 0.5);
+  --border-glow: rgba(88, 101, 242, 0.4);
+  --border-cyan-glow: rgba(0, 240, 255, 0.4);
   
   --blurple: #5865F2;
   --blurple-hover: #4752C4;
+  --blurple-glow: rgba(88, 101, 242, 0.25);
+  
+  --cyan: #00F0FF;
+  --cyan-glow: rgba(0, 240, 255, 0.2);
+  --violet: #8A2BE2;
   --emerald: #10B981;
   --amber: #F59E0B;
+  --crimson: #EF4444;
   
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-heading: 'Plus Jakarta Sans', var(--font-sans);
@@ -24,7 +34,7 @@
 }
 
 html {
-  background-color: var(--bg-dark);
+  background-color: var(--bg-cosmic);
   color: #94A3B8;
   font-family: var(--font-sans);
   scroll-behavior: smooth;
@@ -32,9 +42,10 @@ html {
 
 body {
   overflow-x: hidden;
-  background-color: var(--bg-dark);
+  background-color: var(--bg-cosmic);
   color: #94A3B8;
   position: relative;
+  min-height: 100vh;
 }
 
 /* Custom Scrollbar */
@@ -43,7 +54,7 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #07080d;
+  background: var(--bg-cosmic);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.15);
@@ -58,26 +69,49 @@ body {
 .font-sans { font-family: var(--font-sans); }
 .font-mono { font-family: var(--font-mono); }
 
-/* Ambient Glow Gradients */
+/* Ambient Lighting Gradients */
 .glow-blurple {
-  background: radial-gradient(circle at 50% 50%, rgba(88, 101, 242, 0.15), transparent 70%);
+  background: radial-gradient(circle at 50% 40%, rgba(88, 101, 242, 0.18), transparent 70%);
+}
+.glow-cyan {
+  background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.14), transparent 70%);
+}
+.glow-violet {
+  background: radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.14), transparent 70%);
 }
 
-.glow-emerald {
-  background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15), transparent 70%);
-}
-
-/* Luxury Card */
-.feature-card {
-  background: var(--bg-card);
+/* Glassmorphism & Bento Cards */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
 }
 
-.feature-card::before {
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.bento-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1.25rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -87,32 +121,54 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
 }
 
-.feature-card:hover {
-  border-color: rgba(88, 101, 242, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 25px -5px rgba(88, 101, 242, 0.2);
+.bento-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-glow);
+  transform: translateY(-3px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 0 35px -5px var(--blurple-glow);
 }
 
-/* High-Converting CTA Buttons */
+/* Gradient Texts */
+.gradient-text-blurple {
+  background: linear-gradient(135deg, #FFFFFF 20%, #A5B4FC 60%, #5865F2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-cyan {
+  background: linear-gradient(135deg, #FFFFFF 20%, #67E8F9 60%, #00F0FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-emerald {
+  background: linear-gradient(135deg, #FFFFFF 20%, #6EE7B7 60%, #10B981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Premium Buttons */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--blurple);
+  background: linear-gradient(135deg, #5865F2, #4752C4);
   color: #FFFFFF;
   font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 25px -5px rgba(88, 101, 242, 0.5);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 25px -5px rgba(88, 101, 242, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
+  cursor: pointer;
 }
+
 .btn-primary:hover {
-  background: var(--blurple-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 0 30px -3px rgba(88, 101, 242, 0.7);
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  box-shadow: 0 15px 30px -5px rgba(88, 101, 242, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -120,72 +176,88 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
   background: rgba(255, 255, 255, 0.05);
   color: #F1F5F9;
   font-weight: 600;
-  font-size: 0.875rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--border-subtle);
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
+  cursor: pointer;
 }
+
 .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   color: #FFFFFF;
+  transform: translateY(-2px);
 }
 
-/* Scenario Pills */
-.sim-scenario-btn {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.625rem;
-  color: #94A3B8;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-.sim-scenario-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #FFFFFF;
-}
-.sim-scenario-btn.active {
-  background: rgba(88, 101, 242, 0.15);
-  border-color: var(--blurple);
-  color: #FFFFFF;
-}
-
-/* Discord Window */
-.discord-window {
-  background: #313338;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9);
-  overflow: hidden;
-}
-
-/* Equalizer Bars */
-.equalizer-bar {
-  width: 3px;
-  background: var(--blurple);
+/* Metric Pills */
+.metric-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
   border-radius: 9999px;
-  animation: eqPulse 1.2s ease-in-out infinite alternate;
-}
-@keyframes eqPulse {
-  0% { height: 4px; }
-  100% { height: 20px; }
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
 }
 
-/* Command Palette */
-#cmd-palette.hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: scale(0.98);
+.metric-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
 }
-#cmd-palette:not(.hidden) {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
+
+/* Pulse Dot Animation */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: inherit;
+  opacity: 0.4;
+  animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Discord Chat Simulator Styles */
+.discord-msg-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.6rem;
+  transition: background 0.15s ease;
+}
+
+.discord-msg-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.discord-embed-card {
+  border-left: 4px solid var(--blurple);
+  background: #11141C;
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding: 0.85rem 1rem;
+  margin-top: 0.5rem;
+  max-width: 540px;
 }

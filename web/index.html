@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Bot — The Autonomous AI Operating System for Discord</title>
-  <meta name="description" content="Replace 10 bots with one autonomous AI intelligence. Executes 63+ server actions, private tickets, and multi-turn workflows through zero-slash natural conversation." />
+  <title>Smart Bot — Autonomous AI Community Intelligence Engine</title>
+  <meta name="description" content="The autonomous AI operating system for Discord. Real-time Community Health 0-100, Living Property Graph memory, Server DNA, and automated moderation." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -21,11 +21,16 @@
       theme: {
         extend: {
           colors: {
-            dark: '#07080d',
-            card: '#0e1017',
+            cosmic: '#06080D',
+            surface: '#0B0E17',
+            card: '#0F1422',
             blurple: {
               DEFAULT: '#5865F2',
               hover: '#4752C4'
+            },
+            cyan: {
+              DEFAULT: '#00F0FF',
+              hover: '#00D8E6'
             },
             emerald: {
               400: '#10B981',
@@ -42,52 +47,54 @@
     }
   </script>
 
-  <!-- Modern Stylesheet -->
+  <!-- Modern Luxury Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-dark text-slate-300 font-sans antialiased selection:bg-blurple selection:text-white">
+<body class="bg-cosmic text-slate-300 font-sans antialiased selection:bg-blurple selection:text-white">
 
-  <!-- Ambient Glows -->
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] glow-blurple pointer-events-none z-0"></div>
-  <div class="fixed bottom-0 right-0 w-[600px] h-[600px] glow-emerald pointer-events-none z-0"></div>
+  <!-- Ambient Glow Lighting -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[1100px] h-[550px] glow-blurple pointer-events-none z-0"></div>
+  <div class="fixed bottom-0 right-0 w-[700px] h-[700px] glow-cyan pointer-events-none z-0"></div>
+  <div class="fixed top-1/3 left-0 w-[600px] h-[600px] glow-violet pointer-events-none z-0"></div>
 
   <!-- Background Interactive Particles -->
-  <canvas id="neural-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+  <canvas id="neural-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-30"></canvas>
 
   <!-- Navigation Bar -->
-  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-dark/80 border-b border-white/[0.08]">
-    <div class="max-w-7xl mx-auto px-6 h-16 sm:h-20 flex items-center justify-between">
+  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-cosmic/80 border-b border-white/[0.08]">
+    <div class="max-w-7xl mx-auto px-6 h-18 sm:h-20 flex items-center justify-between">
       
       <!-- Brand Logo -->
       <a href="#hero" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 rounded-xl bg-blurple flex items-center justify-center text-white shadow-lg shadow-blurple/30 group-hover:scale-105 transition-transform">
-          <i class="fa-solid fa-bolt-lightning text-sm"></i>
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blurple to-cyan p-0.5 shadow-lg shadow-blurple/30 group-hover:scale-105 transition-all">
+          <img src="assets/avatar.jpg" alt="Smart Bot" class="w-full h-full object-cover rounded-[14px]" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'" />
         </div>
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
-            <span class="font-heading font-bold text-base sm:text-lg text-white tracking-tight">Smart Bot</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/10 text-slate-300 font-medium">v3.6</span>
+            <span class="font-heading font-extrabold text-lg text-white tracking-tight">SMART BOT</span>
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-cyan/10 border border-cyan/30 text-cyan">AI ENGINE</span>
           </div>
         </div>
       </a>
 
       <!-- Navigation Links -->
-      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-300">
-        <a href="#/" class="nav-link hover:text-white transition-colors">Overview</a>
-        <a href="#/features" class="nav-link hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-brain text-xs text-blurple"></i><span>Features</span></a>
-        <a href="#/pricing" class="nav-link hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-gem text-xs text-amber-400"></i><span>Pricing</span></a>
-        <a href="#/demo" class="nav-link hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-gamepad text-xs text-indigo-400"></i><span>Sandbox Demo</span></a>
-        <a href="#/dashboard" class="nav-link hover:text-white transition-colors flex items-center gap-1.5 text-emerald-400 font-semibold"><i class="fa-solid fa-shield-halved text-xs"></i><span>Dashboard</span></a>
-        <a href="#/owner" class="nav-link hover:text-white transition-colors flex items-center gap-1.5 text-purple-400 font-semibold"><i class="fa-solid fa-crown text-xs"></i><span>Owner Panel</span></a>
+      <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <a href="#hero" class="hover:text-white transition-colors">Overview</a>
+        <a href="#bento-features" class="hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-layer-group text-xs text-blurple"></i><span>Features</span></a>
+        <a href="#sandbox-section" class="hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-terminal text-xs text-cyan"></i><span>Sandbox Simulator</span></a>
+        <a href="#commands-section" class="hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-code text-xs text-purple-400"></i><span>Commands</span></a>
+        <a href="#pricing-section" class="hover:text-white transition-colors flex items-center gap-1.5"><i class="fa-solid fa-gem text-xs text-amber-400"></i><span>Pricing</span></a>
       </nav>
 
-      <!-- Right Action CTA -->
+      <!-- Right Action CTA & Auth Status -->
       <div class="flex items-center gap-3">
-        <button id="auth-modal-btn" class="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-white flex items-center gap-2 transition-all">
-          <i class="fa-brands fa-discord text-blurple text-sm"></i>
-          <span id="auth-btn-label">Login with Discord</span>
+        <!-- Role Simulator / Login Trigger -->
+        <button id="auth-btn" onclick="openAuthModal()" class="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.12] border border-white/10 text-xs font-semibold text-white flex items-center gap-2 transition-all cursor-pointer">
+          <i class="fa-brands fa-discord text-blurple text-sm" id="auth-icon"></i>
+          <span id="auth-label">Login with Discord</span>
         </button>
 
+        <!-- Direct Add Bot Invite -->
         <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener noreferrer" class="btn-primary !py-2 !px-4 !text-xs sm:!text-sm">
           <i class="fa-solid fa-plus text-xs"></i>
           <span>Invite Smart Bot</span>
@@ -97,642 +104,775 @@
     </div>
   </header>
 
-  <!-- Main Hero Section -->
-  <section id="hero" class="relative pt-32 sm:pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col items-center text-center z-10">
-    
-    <!-- Top Announcement Pill -->
-    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-8 hover:border-white/20 transition-all cursor-pointer">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="text-xs font-medium text-slate-200">Smart Bot v4.2 — Community Intelligence Platform</span>
-      <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
-    </div>
+  <!-- ========================================== -->
+  <!-- MAIN LANDING VIEW -->
+  <!-- ========================================== -->
+  <main id="public-landing-view" class="relative z-10 pt-28 sm:pt-36">
 
-    <!-- Punchy High-Converting Headline -->
-    <h1 class="font-heading font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white tracking-tight max-w-4xl leading-[1.12] mb-6">
-      The AI Brain For <br class="hidden sm:inline" />
-      <span class="text-transparent bg-clip-text bg-gradient-to-r from-blurple via-indigo-300 to-emerald-400">Discord Communities</span>
-    </h1>
-
-    <!-- Value Prop Subtitle -->
-    <p class="max-w-2xl text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-10">
-      MEE6 does commands. Dyno moderates. Smart Bot <strong class="text-white">understands your community</strong>. Get automated weekly server intelligence reports, a self-indexing living knowledge base, 24h dispute diagnosis, and studio neural voice with 99% lower AI costs.
-    </p>
-
-    <!-- Hero CTA Buttons -->
-    <div class="flex flex-wrap items-center justify-center gap-4 mb-16">
-      <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-primary !text-base !py-3.5 !px-7">
-        <i class="fa-brands fa-discord text-lg"></i>
-        <span>Add to Discord Free</span>
-      </a>
-      <a href="#simulator" class="btn-secondary !text-base !py-3.5 !px-7">
-        <i class="fa-solid fa-play text-xs text-blurple"></i>
-        <span>Try Live Sandbox</span>
-      </a>
-    </div>
-
-    <!-- Live Stats Strip -->
-    <div class="w-full max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-4 p-4 rounded-2xl bg-card border border-white/[0.08] backdrop-blur-xl">
-      <div class="p-3 text-center">
-        <div class="text-2xl sm:text-3xl font-extrabold text-white font-heading count-up" data-target="68">0</div>
-        <div class="text-xs text-slate-400 font-medium mt-1">Community Tools</div>
-      </div>
-      <div class="p-3 text-center">
-        <div class="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-heading"><span class="count-up" data-target="99">0</span>%</div>
-        <div class="text-xs text-slate-400 font-medium mt-1">Cost Reduction</div>
-      </div>
-      <div class="p-3 text-center">
-        <div class="text-2xl sm:text-3xl font-extrabold text-indigo-400 font-heading"><span class="count-up" data-target="300">0</span>k+</div>
-        <div class="text-xs text-slate-400 font-medium mt-1">Member Scale</div>
-      </div>
-      <div class="p-3 text-center">
-        <div class="text-2xl sm:text-3xl font-extrabold text-white font-heading">$<span class="count-up" data-target="0">0</span></div>
-        <div class="text-xs text-slate-400 font-medium mt-1">Monthly Cost</div>
-    </div>
-
-  </section>
-
-  <!-- Problem & Comparison: Why Smart Bot Wins -->
-  <section id="comparison" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-mono uppercase tracking-wider text-blurple font-semibold mb-2 block">The New Standard</span>
-      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight mb-4">
-        Why Server Owners Are Switching
-      </h2>
-      <p class="text-slate-400 text-base">
-        Traditional Discord bots require memorize-heavy slash commands, multiple subscriptions, and constant manual upkeep. Smart Bot solves it all through unified natural language.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+    <!-- Hero Section -->
+    <section id="hero" class="max-w-7xl mx-auto px-6 pb-20 text-center">
       
-      <!-- Old Way -->
-      <div class="feature-card p-8 bg-card/60 border-rose-500/20">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-lg">
-            <i class="fa-solid fa-xmark"></i>
-          </div>
-          <div>
-            <h3 class="font-heading font-bold text-lg text-white">Traditional Discord Bots</h3>
-            <span class="text-xs text-slate-500">Fragmented & Blind to Context</span>
-          </div>
-        </div>
-        <ul class="space-y-4 text-sm text-slate-400">
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-xmark text-rose-500 mt-1"></i>
-            <span><strong>MEE6 / Dyno / Carl-bot:</strong> Only execute rigid commands or basic bans. Zero idea why members are angry or what they want.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-xmark text-rose-500 mt-1"></i>
-            <span><strong>Zero Community Insights:</strong> Admins must manually scroll through 50,000 messages to understand server feedback and drama.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-xmark text-rose-500 mt-1"></i>
-            <span><strong>Repeating Question Fatigue:</strong> Staff answers the exact same 5 questions 100 times a day in chat.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-xmark text-rose-500 mt-1"></i>
-            <span><strong>Astronomical AI Costs:</strong> Naive bots try to send every message to LLMs, bankrupting owners on 300k+ member servers.</span>
-          </li>
-        </ul>
+      <!-- Top Announcement Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md mb-8">
+        <span class="pulse-dot bg-cyan"></span>
+        <span class="text-xs font-medium text-slate-300">Autonomous Community Intelligence Engine</span>
+        <span class="text-xs font-bold text-cyan font-mono">⚡ 59ms Response</span>
       </div>
 
-      <!-- Smart Bot Way -->
-      <div class="feature-card p-8 border-blurple/50 bg-card shadow-xl shadow-blurple/10">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 rounded-xl bg-blurple/20 text-blurple flex items-center justify-center text-lg">
-            <i class="fa-solid fa-brain"></i>
-          </div>
-          <div>
-            <h3 class="font-heading font-bold text-lg text-white">Smart Bot Intelligence Platform</h3>
-            <span class="text-xs text-emerald-400 font-semibold">Understands Your Community</span>
-          </div>
-        </div>
-        <ul class="space-y-4 text-sm text-slate-300">
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
-            <span><strong>Executive Community Reports:</strong> Generates weekly digests with engagement trends, top 3 discussion topics, and actionable staff advice.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
-            <span><strong>Living Knowledge Base (RAG):</strong> Self-indexes rules, announcements, and FAQs to answer member questions with grounded citations.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
-            <span><strong>Conversation & Debate Intelligence:</strong> Neutrally analyzes community arguments, maps out differing stances, and suggests compromises.</span>
-          </li>
-          <li class="flex items-start gap-3">
-            <i class="fa-solid fa-circle-check text-emerald-400 mt-1"></i>
-            <span><strong>99% Cost-Reduced Collector:</strong> Ingests 10,000+ msgs/hour into zero-cost local buffers for massive 300k+ member scalability.</span>
-          </li>
-        </ul>
-      </div>
+      <!-- Main Headline -->
+      <h1 class="font-heading font-black text-4xl sm:text-6xl lg:text-7xl text-white tracking-tight leading-[1.1] max-w-5xl mx-auto mb-6">
+        Turn Your Discord Server into an <span class="gradient-text-blurple">Autonomous AI</span> Powerhouse.
+      </h1>
 
-    </div>
-  </section>
-
-  <!-- Live Discord Interactive Sandbox -->
-  <section id="simulator" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="text-center max-w-3xl mx-auto mb-12">
-      <span class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold mb-2 block">Interactive Demo</span>
-      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight mb-4">
-        Test Drive the Bot in Real-Time
-      </h2>
-      <p class="text-slate-400 text-base">
-        Click any scenario below or type your own instructions to see Smart Bot execute live actions and stream responses.
+      <!-- Subheadline -->
+      <p class="text-base sm:text-xl text-slate-400 max-w-3xl mx-auto mb-10 leading-relaxed font-normal">
+        Understand member feedback, calculate real-time <span class="text-white font-medium">Community Health 0–100</span>, query living decision history, and automate server moderation with zero configuration.
       </p>
-    </div>
 
-    <!-- Quick Scenario Presets -->
-    <div class="flex flex-wrap items-center justify-center gap-2.5 mb-8">
-      <button class="sim-scenario-btn active px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="brain" data-prompt="@Smart bot why was the tournament date moved to August 25?">
-        <i class="fa-solid fa-brain text-blurple"></i>
-        <span>🧠 Ask Community Brain (Graph)</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="health" data-prompt="@Smart bot what is our community health score?">
-        <i class="fa-solid fa-heart-pulse text-emerald-400"></i>
-        <span>📈 AI Community Health (0-100)</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="dna" data-prompt="@Smart bot scan server dna">
-        <i class="fa-solid fa-dna text-purple-400"></i>
-        <span>🧬 Server DNA Profile</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="report" data-prompt="@Smart bot give me this week's community report">
-        <i class="fa-solid fa-chart-pie text-indigo-400"></i>
-        <span>📊 Weekly Intelligence Report</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="kb" data-prompt="@Smart bot when does the tournament start and what are the prizes?">
-        <i class="fa-solid fa-book-bookmark text-emerald-400"></i>
-        <span>📌 Living Knowledge Base (RAG)</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="suggest" data-prompt="@Smart bot suggest feature Add Google Calendar two-way event sync">
-        <i class="fa-solid fa-lightbulb text-amber-400"></i>
-        <span>💡 Member Suggestion Loop</span>
-      </button>
-      <button class="sim-scenario-btn px-4 py-2 text-xs font-semibold flex items-center gap-2" data-type="persona" data-prompt="@Smart bot set persona to savage">
-        <i class="fa-solid fa-fire text-amber-400"></i>
-        <span>🔥 Dynamic Persona: Savage</span>
-      </button>
-    </div>
-
-    <!-- Discord Window Mockup -->
-    <div class="discord-window max-w-4xl mx-auto h-[520px] flex flex-col">
-      <!-- Window Top Bar -->
-      <div class="h-12 bg-[#2b2d31] px-4 flex items-center justify-between border-b border-[#1f2023]">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-hashtag text-slate-400 text-sm"></i>
-          <span class="font-semibold text-white text-sm">bot-command-center</span>
-          <span class="hidden sm:inline text-xs text-slate-400 border-l border-slate-600 pl-2 ml-1">Live Sandbox</span>
+      <!-- 100% Proprietary Metric Pills -->
+      <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10 max-w-4xl mx-auto">
+        <div class="metric-pill">
+          <i class="fa-solid fa-bolt text-cyan text-xs"></i>
+          <span>Sub-60ms Instant Neural Core</span>
         </div>
-        <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[11px] font-mono flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          SHARD CONNECTED
-        </span>
+        <div class="metric-pill">
+          <i class="fa-solid fa-brain text-blurple text-xs"></i>
+          <span>Living Property Graph Memory</span>
+        </div>
+        <div class="metric-pill">
+          <i class="fa-solid fa-shield-halved text-emerald-400 text-xs"></i>
+          <span>Zero-Hallucination Causal Standard</span>
+        </div>
+        <div class="metric-pill">
+          <i class="fa-solid fa-users text-purple-400 text-xs"></i>
+          <span>300k+ Member High-Throughput</span>
+        </div>
       </div>
 
-      <!-- Messages Stream Area -->
-      <div id="discord-messages" class="flex-1 p-6 overflow-y-auto space-y-6 custom-scrollbar bg-[#313338]"></div>
-
-      <!-- Typing Indicator -->
-      <div id="discord-typing" class="px-6 py-1 text-xs text-slate-400 font-medium flex items-center gap-2 opacity-0 transition-opacity bg-[#313338]">
-        <span class="flex gap-1 items-center">
-          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
-          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-          <span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
-        </span>
-        <span><strong class="text-white">Smart Bot</strong> is streaming...</span>
+      <!-- Hero Action Buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener noreferrer" class="btn-primary !text-base !px-8 !py-3.5 w-full sm:w-auto shadow-xl shadow-blurple/30">
+          <i class="fa-solid fa-rocket"></i>
+          <span>Add to Discord — Free Trial</span>
+        </a>
+        <a href="#sandbox-section" class="btn-secondary !text-base !px-8 !py-3.5 w-full sm:w-auto">
+          <i class="fa-solid fa-terminal text-cyan"></i>
+          <span>Test Live Sandbox Demo</span>
+        </a>
       </div>
 
-      <!-- Input Bar -->
-      <div class="p-4 bg-[#383a40] border-t border-[#2e3035]">
-        <form id="simulator-form" class="flex items-center gap-2 bg-[#2b2d31] rounded-lg px-4 py-2.5">
-          <input id="simulator-input" type="text" placeholder="Message #bot-command-center..." class="flex-1 bg-transparent border-none outline-none text-white text-sm placeholder:text-slate-500 font-sans" value="@Smart bot bulk ban user1, user2 reason raiding server" />
-          <button type="submit" class="px-3.5 py-1.5 bg-blurple hover:bg-blurple-hover rounded text-white text-xs font-semibold flex items-center gap-1.5 transition-all">
+      <!-- Hero Visual: Brand Banner & Live Simulator Preview -->
+      <div class="max-w-5xl mx-auto rounded-2xl p-1 bg-gradient-to-b from-white/15 via-white/5 to-transparent shadow-2xl shadow-black/80">
+        <div class="rounded-[15px] overflow-hidden bg-surface border border-white/10">
+          
+          <!-- Mock Terminal Window Top Bar -->
+          <div class="h-10 bg-cosmic/90 border-b border-white/[0.08] px-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-crimson/80"></div>
+              <div class="w-3 h-3 rounded-full bg-amber/80"></div>
+              <div class="w-3 h-3 rounded-full bg-emerald-400/80"></div>
+              <span class="text-xs font-mono text-slate-400 ml-3 font-semibold flex items-center gap-1.5">
+                <i class="fa-brands fa-discord text-blurple"></i> #general — Sophie ♡'s Cave
+              </span>
+            </div>
+            <div class="flex items-center gap-3 text-xs font-mono text-slate-400">
+              <span class="text-emerald-400 flex items-center gap-1"><span class="pulse-dot bg-emerald-400 !w-2 !h-2"></span> Smart Bot Online</span>
+              <span class="text-slate-500">|</span>
+              <span class="text-cyan">Neural Core 59ms</span>
+            </div>
+          </div>
+
+          <!-- Hero Terminal Simulated Chat -->
+          <div class="p-6 sm:p-8 space-y-5 text-left bg-gradient-to-b from-surface to-cosmic">
+            
+            <!-- User Prompt Row -->
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md">
+                MM
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                  <span class="text-white font-semibold text-sm">MysteriousMeek</span>
+                  <span class="text-[11px] text-slate-500">Today at 4:20 PM</span>
+                </div>
+                <p class="text-slate-200 text-sm mt-1 bg-white/[0.04] border border-white/[0.06] rounded-xl px-3.5 py-2 inline-block">
+                  <span class="text-blurple font-semibold">@Smart bot</span> what is our current community health score and top friction points?
+                </p>
+              </div>
+            </div>
+
+            <!-- Bot Response Row -->
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blurple to-cyan p-0.5 shrink-0 shadow-lg shadow-blurple/20">
+                <img src="assets/avatar.jpg" alt="Smart Bot" class="w-full h-full object-cover rounded-full" />
+              </div>
+              <div class="flex flex-col flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-white font-bold text-sm">Smart bot</span>
+                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blurple text-white">APP</span>
+                  <span class="text-[11px] text-slate-500">Today at 4:20 PM</span>
+                </div>
+
+                <!-- Rich Discord Embed -->
+                <div class="discord-embed-card border-l-4 border-emerald-400 bg-surface/90 border border-white/[0.06] rounded-r-xl p-5 mt-2 max-w-3xl">
+                  
+                  <!-- Title & Score Header -->
+                  <div class="flex items-center justify-between border-b border-white/[0.08] pb-3 mb-3">
+                    <div>
+                      <h4 class="text-white font-bold text-base flex items-center gap-2">
+                        📈 Community Health Score — Sophie ♡'s Cave
+                      </h4>
+                      <p class="text-xs text-slate-400 mt-0.5">
+                        🌱 **Stage:** Incubation / Seed Phase *(Created 4 days ago)* • 👥 **Members:** `3 Humans • 4 Bots`
+                      </p>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-2xl font-black text-emerald-400 font-mono">88<span class="text-sm text-slate-400">/100</span></span>
+                      <span class="block text-[10px] font-bold text-emerald-400 uppercase">Grade A</span>
+                    </div>
+                  </div>
+
+                  <!-- Metrics Grid -->
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                    <div class="bg-white/[0.03] p-2.5 rounded-lg border border-white/[0.04]">
+                      <span class="text-[11px] text-slate-400 block">📊 Engagement</span>
+                      <span class="text-sm font-semibold text-white">18/25 (Good)</span>
+                    </div>
+                    <div class="bg-white/[0.03] p-2.5 rounded-lg border border-white/[0.04]">
+                      <span class="text-[11px] text-slate-400 block">🛡️ Staff Health</span>
+                      <span class="text-sm font-semibold text-emerald-400">18/20 (Fast)</span>
+                    </div>
+                    <div class="bg-white/[0.03] p-2.5 rounded-lg border border-white/[0.04]">
+                      <span class="text-[11px] text-slate-400 block">⚠️ Friction Stability</span>
+                      <span class="text-sm font-semibold text-emerald-400">20/20 (Zero Drama)</span>
+                    </div>
+                  </div>
+
+                  <!-- Strategic Recommendations -->
+                  <div class="bg-blurple/10 border border-blurple/20 rounded-lg p-3 text-xs text-slate-300">
+                    <span class="font-bold text-white block mb-1">💡 AI Strategic Recommendations:</span>
+                    <p>• Host an opening community game night to foster organic multi-member discussion.</p>
+                    <p>• Index server rules via <code class="text-cyan bg-black/40 px-1 py-0.5 rounded">@Smart bot index rule</code> to activate automatic FAQ answering.</p>
+                  </div>
+
+                  <div class="mt-3 pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-500">
+                    <span>Smart Bot Community Intelligence</span>
+                    <span class="text-cyan font-mono">Sub-60ms Causal Verification</span>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- BENTO GRID FEATURE SHOWCASE -->
+    <!-- ========================================== -->
+    <section id="bento-features" class="max-w-7xl mx-auto px-6 py-20">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-bold font-mono text-cyan uppercase tracking-widest mb-3">Enterprise Community Intelligence</h2>
+        <h3 class="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">
+          Engineered for Modern Discord Ecosystems.
+        </h3>
+        <p class="text-slate-400 text-base mt-4">
+          Four proprietary engines working in unison to understand, diagnose, and govern your community 24/7.
+        </p>
+      </div>
+
+      <!-- Bento Grid (4 Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Bento 1: Community Health Radar -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 text-xl mb-6">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h4 class="font-heading font-bold text-2xl text-white mb-2">Community Health Radar (0–100)</h4>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+              Calculates calibrated 5-factor community health across Engagement, Staff Responsiveness, Friction Stability, Knowledge Grounding, and Vibe Retention.
+            </p>
+          </div>
+
+          <div class="bg-surface/80 rounded-xl p-5 border border-white/[0.08]">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-semibold text-slate-300">Live Health Gauge</span>
+              <span class="text-xs font-mono font-bold text-emerald-400">88/100 (Grade A)</span>
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full bg-white/10 h-2.5 rounded-full overflow-hidden mb-3">
+              <div class="bg-gradient-to-r from-cyan to-emerald-400 h-full rounded-full w-[88%]"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+              <span>🌱 Seed Stage Calibrated</span>
+              <span>🛡️ Zero Toxic Drama</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento 2: Server DNA & Adaptive Personas -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl mb-6">
+              <i class="fa-solid fa-dna"></i>
+            </div>
+            <h4 class="font-heading font-bold text-2xl text-white mb-2">Server DNA & Adaptive Persona Studio</h4>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+              Autonomously extracts server archetype and communication culture. Seamlessly adapts tone between Gaming Hype, Technical Dev, Sarcastic Banter, or Wholesome Community.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl p-3 text-center transition-all cursor-pointer">
+              <span class="text-lg block mb-1">🎮</span>
+              <span class="text-xs font-semibold text-white block">Gaming & Esports</span>
+              <span class="text-[10px] text-slate-400">Hype & High Energy</span>
+            </div>
+            <div class="bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] rounded-xl p-3 text-center transition-all cursor-pointer">
+              <span class="text-lg block mb-1">💻</span>
+              <span class="text-xs font-semibold text-white block">Developer & Tech</span>
+              <span class="text-[10px] text-slate-400">Crisp & Synthesized</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento 3: Living Property Graph Memory -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-cyan/10 border border-cyan/30 flex items-center justify-center text-cyan text-xl mb-6">
+              <i class="fa-solid fa-network-wired"></i>
+            </div>
+            <h4 class="font-heading font-bold text-2xl text-white mb-2">Living Knowledge Graph & Causal Memory</h4>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+              Indexes decisions, rules, and schedules in a fast SQLite-backed property graph. Provides zero-hallucination factual citations for why rules changed or when events occur.
+            </p>
+          </div>
+
+          <div class="bg-surface/80 rounded-xl p-4 border border-white/[0.08] text-xs font-mono space-y-2">
+            <div class="flex items-center gap-2 text-slate-300">
+              <i class="fa-solid fa-arrow-right text-cyan text-[10px]"></i>
+              <span>Q: "Why was the tournament date moved?"</span>
+            </div>
+            <div class="p-2.5 rounded bg-cosmic border border-white/[0.04] text-slate-400">
+              <span class="text-cyan font-bold">Citation:</span> Decision by @Sophie in #announcements (Aug 22) due to game patch release.
+            </div>
+          </div>
+        </div>
+
+        <!-- Bento 4: Autonomous Operations & Moderation -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-blurple/10 border border-blurple/30 flex items-center justify-center text-blurple text-xl mb-6">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+            <h4 class="font-heading font-bold text-2xl text-white mb-2">Autonomous Operations & Moderation</h4>
+            <p class="text-slate-400 text-sm leading-relaxed mb-6">
+              Execute multi-turn moderation (bulk bans, channel locks, role sync, font renames), native Discord polls, and instant private ticket systems through plain natural language.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap text-xs">
+            <span class="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-slate-200">🛡️ Auto-Purge & Ban</span>
+            <span class="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-slate-200">📊 Native Discord Polls</span>
+            <span class="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-slate-200">🎫 One-Click Tickets</span>
+            <span class="px-3 py-1.5 rounded-lg bg-white/[0.05] border border-white/10 text-slate-200">🎙️ Live Voice TTS</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- INTERACTIVE SANDBOX SIMULATOR -->
+    <!-- ========================================== -->
+    <section id="sandbox-section" class="max-w-6xl mx-auto px-6 py-20">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <h2 class="text-xs font-bold font-mono text-cyan uppercase tracking-widest mb-3">Live Interactive Demo</h2>
+        <h3 class="font-heading font-extrabold text-3xl sm:text-4xl text-white">Experience the Neural Core in Action</h3>
+        <p class="text-slate-400 text-sm mt-3">Click any quick prompt chip or type below to test Smart Bot's simulated response engine.</p>
+      </div>
+
+      <!-- Simulator Container -->
+      <div class="glass-panel overflow-hidden border border-white/15 shadow-2xl">
+        
+        <!-- Header -->
+        <div class="h-12 bg-surface/90 border-b border-white/[0.08] px-6 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+            <span class="text-xs font-bold text-white font-mono">SIMULATOR: Smart Bot v5.0 Neural Engine</span>
+          </div>
+          <button onclick="clearSimulatorChat()" class="text-xs text-slate-400 hover:text-white transition-colors">
+            <i class="fa-solid fa-trash-can mr-1"></i> Clear Chat
+          </button>
+        </div>
+
+        <!-- Preset Quick Chips -->
+        <div class="p-4 bg-cosmic/60 border-b border-white/[0.06] flex items-center gap-2 overflow-x-auto">
+          <span class="text-[11px] font-bold text-slate-400 uppercase shrink-0">Quick Prompts:</span>
+          <button onclick="simulatePrompt('health')" class="px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-blurple hover:text-white border border-white/10 text-xs text-slate-200 shrink-0 transition-all">
+            📈 /health Community Score
+          </button>
+          <button onclick="simulatePrompt('dna')" class="px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-purple-600 hover:text-white border border-white/10 text-xs text-slate-200 shrink-0 transition-all">
+            🧬 /dna Server Profile
+          </button>
+          <button onclick="simulatePrompt('rule')" class="px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-cyan hover:text-black border border-white/10 text-xs text-slate-200 shrink-0 transition-all">
+            📚 Query Rule Decision
+          </button>
+          <button onclick="simulatePrompt('poll')" class="px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-emerald-500 hover:text-white border border-white/10 text-xs text-slate-200 shrink-0 transition-all">
+            📊 Create Native Poll
+          </button>
+        </div>
+
+        <!-- Chat History Stream -->
+        <div id="simulator-chat-box" class="p-6 space-y-4 min-h-[320px] max-h-[440px] overflow-y-auto bg-surface/50">
+          <!-- Initial Welcome Message -->
+          <div class="discord-msg-row">
+            <img src="assets/avatar.jpg" alt="Smart Bot" class="w-9 h-9 rounded-full object-cover shrink-0" />
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-white font-bold text-xs">Smart bot</span>
+                <span class="text-[9px] font-bold px-1 rounded bg-blurple text-white">APP</span>
+                <span class="text-[10px] text-slate-500">Just now</span>
+              </div>
+              <p class="text-sm text-slate-200 mt-1">
+                Hey! I'm **Smart Bot** — your autonomous community intelligence engine. Click one of the quick prompts above or type below to test my intelligence! ⚡
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <form id="simulator-form" onsubmit="handleSimulatorSubmit(event)" class="p-4 bg-cosmic/90 border-t border-white/[0.08] flex items-center gap-3">
+          <input type="text" id="simulator-input" placeholder="Message @Smart bot..." class="flex-1 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blurple transition-all" />
+          <button type="submit" class="btn-primary !py-2.5 !px-5 text-sm">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
             <span>Send</span>
-            <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
         </form>
-      </div>
-    </div>
-  </section>
 
-  <!-- Core Features Bento Grid -->
-  <section id="features" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-mono uppercase tracking-wider text-blurple font-semibold mb-2 block">Built for Scale</span>
-      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight mb-4">
-        Unmatched Power & Architecture
-      </h2>
-      <p class="text-slate-400 text-base">
-        Engineered with Google Gemini 3.6 Flash and Gemini 3.5 Flash-Lite dual-model routing.
-      </p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- SEARCHABLE SLASH COMMANDS DIRECTORY -->
+    <!-- ========================================== -->
+    <section id="commands-section" class="max-w-7xl mx-auto px-6 py-20">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div>
+          <h2 class="text-xs font-bold font-mono text-cyan uppercase tracking-widest mb-3">Commands & Automation</h2>
+          <h3 class="font-heading font-extrabold text-3xl sm:text-4xl text-white">Searchable Command Directory</h3>
+        </div>
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          <input type="text" id="command-search" oninput="filterCommands(this.value)" placeholder="Search commands (/health, /brain)..." class="w-full bg-white/[0.05] border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan transition-all" />
+        </div>
+      </div>
+
+      <!-- Command Cards Grid -->
+      <div id="commands-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        
+        <div class="bento-card p-5 command-card" data-cmd="/health">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-emerald-400 text-sm">/health</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">All Members</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Generates real-time 0-100 Community Health Score, friction radar, and strategic recommendations.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/health</code></span>
+        </div>
+
+        <div class="bento-card p-5 command-card" data-cmd="/dna">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-purple-400 text-sm">/dna</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-400/10 text-purple-400 border border-purple-400/20">All Members</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Inspects server archetype, communication tone, and active grounded community guidelines.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/dna</code></span>
+        </div>
+
+        <div class="bento-card p-5 command-card" data-cmd="/brain">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-cyan text-sm">/brain [query]</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">All Members</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Deep query against the server's Living Knowledge Graph with causal citations.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/brain tournament rules</code></span>
+        </div>
+
+        <div class="bento-card p-5 command-card" data-cmd="/report">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-blurple text-sm">/report</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-blurple/10 text-blurple border border-blurple/20">Staff & Admin</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Produces an executive 7-day community intelligence report with activity radar.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/report</code></span>
+        </div>
+
+        <div class="bento-card p-5 command-card" data-cmd="/setup">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-amber-400 text-sm">/setup</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">Admin Only</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Launches interactive dropdown setup panel for mod-logs, personas, and roles.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/setup</code></span>
+        </div>
+
+        <div class="bento-card p-5 command-card" data-cmd="/status">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-mono font-bold text-white text-sm">/status</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white border border-white/20">All Members</span>
+          </div>
+          <p class="text-slate-400 text-xs mb-3">Displays neural engine latency, uptime telemetry, and active server connections.</p>
+          <span class="text-[10px] text-slate-500 font-mono">Example: <code class="text-slate-300">/status</code></span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- COMMERCIAL SAAS PRICING MATRIX -->
+    <!-- ========================================== -->
+    <section id="pricing-section" class="max-w-7xl mx-auto px-6 py-20">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-bold font-mono text-cyan uppercase tracking-widest mb-3">Simple Transparent Pricing</h2>
+        <h3 class="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight">Invest in Your Community Intelligence</h3>
+        <p class="text-slate-400 text-sm mt-3">Deploy autonomous intelligence to protect, engage, and scale your Discord community.</p>
+
+        <!-- Monthly / Annual Switcher -->
+        <div class="inline-flex items-center gap-3 p-1.5 rounded-full bg-white/[0.05] border border-white/10 mt-8">
+          <button id="billing-monthly" onclick="setBillingCycle('monthly')" class="px-5 py-2 rounded-full text-xs font-bold bg-blurple text-white transition-all">Monthly</button>
+          <button id="billing-annual" onclick="setBillingCycle('annual')" class="px-5 py-2 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all flex items-center gap-1.5">
+            <span>Annual</span>
+            <span class="px-2 py-0.5 rounded-full bg-cyan/20 text-cyan text-[10px] font-mono">Save 20%</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pricing Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        
+        <!-- Starter Plan -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 font-mono uppercase block mb-2">Starter</span>
+            <div class="flex items-baseline gap-1 mb-4">
+              <span id="price-starter" class="text-4xl font-black text-white font-heading">$19</span>
+              <span class="text-xs text-slate-400">/month</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">Perfect for growing communities looking for autonomous moderation & health diagnostics.</p>
+            
+            <ul class="space-y-3 text-xs text-slate-300 mb-8">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> 1 Connected Discord Server</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Real-time Health Radar (0-100)</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Living Property Graph Memory</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Standard Neural Core (Sub-100ms)</li>
+              <li class="flex items-center gap-2 text-slate-500"><i class="fa-solid fa-xmark"></i> Custom Persona Studio</li>
+            </ul>
+          </div>
+
+          <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" class="btn-secondary !w-full !py-3 text-xs font-bold">
+            Start 14-Day Free Trial
+          </a>
+        </div>
+
+        <!-- Pro Plan (Featured) -->
+        <div class="bento-card p-8 flex flex-col justify-between border-blurple shadow-xl shadow-blurple/20 relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-blurple to-cyan text-white text-[10px] font-bold uppercase tracking-wider">
+            Most Popular
+          </div>
+          
+          <div>
+            <span class="text-xs font-bold text-cyan font-mono uppercase block mb-2">Pro Intelligence</span>
+            <div class="flex items-baseline gap-1 mb-4">
+              <span id="price-pro" class="text-4xl font-black text-white font-heading">$49</span>
+              <span class="text-xs text-slate-400">/month</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">Complete autonomous operations, custom personas, and high-speed priority neural core.</p>
+            
+            <ul class="space-y-3 text-xs text-slate-300 mb-8">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Up to 3 Connected Discord Servers</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> 24/7 Health & Friction Monitoring</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Custom Server Persona Studio</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Priority Sub-60ms Instant Core</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Live Voice Channel TTS & Auto-Mod</li>
+            </ul>
+          </div>
+
+          <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" class="btn-primary !w-full !py-3 text-xs font-bold">
+            Upgrade to Pro
+          </a>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="bento-card p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-slate-400 font-mono uppercase block mb-2">Enterprise Fleet</span>
+            <div class="flex items-baseline gap-1 mb-4">
+              <span class="text-4xl font-black text-white font-heading">Custom</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-6">For massive 300k+ member servers, gaming studios, and enterprise Discord hubs.</p>
+            
+            <ul class="space-y-3 text-xs text-slate-300 mb-8">
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Unlimited Discord Servers</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Custom Bot Branding & White-Label</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> Dedicated High-Throughput Node</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> 99.99% Guaranteed SLA Uptime</li>
+              <li class="flex items-center gap-2"><i class="fa-solid fa-check text-cyan"></i> 24/7 Dedicated Account Architect</li>
+            </ul>
+          </div>
+
+          <a href="https://discord-smart-bot.vercel.app" class="btn-secondary !w-full !py-3 text-xs font-bold">
+            Contact Enterprise Sales
+          </a>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- ROLE-GATED PORTAL VIEWS -->
+  <!-- ========================================== -->
+
+  <!-- 1. Member Hub (People Login) -->
+  <section id="member-portal-view" class="hidden relative z-10 pt-28 sm:pt-36 max-w-6xl mx-auto px-6 pb-20">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-xs font-mono font-bold text-cyan uppercase tracking-wider">Member Hub</h2>
+        <h3 class="font-heading font-bold text-3xl text-white">My Community Profile & Privacy</h3>
+      </div>
+      <button onclick="logoutRole()" class="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-300 transition-all">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i> Log Out
+      </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      <!-- Feature 1 -->
-      <div class="feature-card p-8">
-        <div class="w-12 h-12 rounded-xl bg-blurple/20 text-blurple flex items-center justify-center text-xl mb-6">
-          <i class="fa-solid fa-brain"></i>
-        </div>
-        <h3 class="font-heading font-bold text-xl text-white mb-2">Dual-Engine Brain</h3>
-        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-          Gemini 3.6 Flash drives conversational multi-turn workflows, while Gemini 3.5 Flash-Lite handles sub-second Watch-Mode threat classification.
-        </p>
-        <span class="text-xs font-mono text-emerald-400">1.2s Real-Time Message Edits</span>
-      </div>
-
-      <!-- Feature 2 -->
-      <div class="feature-card p-8">
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-6">
-          <i class="fa-solid fa-shield-virus"></i>
-        </div>
-        <h3 class="font-heading font-bold text-xl text-white mb-2">Autonomous Watch Mode</h3>
-        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-          Passive background sentinel scores chat severity. Automatically quells raids and isolates bad actors when threat severity &ge; 4.
-        </p>
-        <span class="text-xs font-mono text-emerald-400">Sub-Second Threat Scoring</span>
-      </div>
-
-      <!-- Feature 3 -->
-      <div class="feature-card p-8">
-        <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-6">
-          <i class="fa-solid fa-key"></i>
-        </div>
-        <h3 class="font-heading font-bold text-xl text-white mb-2">Fernet BYOK Encryption</h3>
-        <p class="text-sm text-slate-400 leading-relaxed mb-4">
-          Bring Your Own Key architecture guarantees your API keys and server memory remain completely isolated with AES-256 cryptographic security.
-        </p>
-        <span class="text-xs font-mono text-amber-400">Multi-Tenant Vault</span>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- 5-Dimensional Persona Matrix -->
-  <section id="personas" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-semibold mb-2 block">Adaptive Tone</span>
-      <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight mb-4">
-        5 Dynamic Personas in One Click
-      </h2>
-      <p class="text-slate-400 text-base">
-        Switch your bot's personality instantly to fit your community's vibe.
-      </p>
-    </div>
-
-    <!-- Persona Selector Grid -->
-    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
-      <button class="persona-btn active feature-card p-4 text-left" data-persona="default">
-        <i class="fa-solid fa-user-astronaut text-blurple text-lg mb-2 block"></i>
-        <h4 class="font-heading font-bold text-white text-sm">Default</h4>
-        <span class="text-[11px] text-slate-400">Witty & chill</span>
-      </button>
-      <button class="persona-btn feature-card p-4 text-left" data-persona="savage">
-        <i class="fa-solid fa-fire text-amber-400 text-lg mb-2 block"></i>
-        <h4 class="font-heading font-bold text-white text-sm">Savage</h4>
-        <span class="text-[11px] text-slate-400">Roastmaster</span>
-      </button>
-      <button class="persona-btn feature-card p-4 text-left" data-persona="wholesome">
-        <i class="fa-solid fa-heart text-emerald-400 text-lg mb-2 block"></i>
-        <h4 class="font-heading font-bold text-white text-sm">Wholesome</h4>
-        <span class="text-[11px] text-slate-400">Supportive</span>
-      </button>
-      <button class="persona-btn feature-card p-4 text-left" data-persona="professor">
-        <i class="fa-solid fa-graduation-cap text-sky-400 text-lg mb-2 block"></i>
-        <h4 class="font-heading font-bold text-white text-sm">Professor</h4>
-        <span class="text-[11px] text-slate-400">Academic</span>
-      </button>
-      <button class="persona-btn feature-card p-4 text-left" data-persona="gamer">
-        <i class="fa-solid fa-gamepad text-purple-400 text-lg mb-2 block"></i>
-        <h4 class="font-heading font-bold text-white text-sm">Gamer</h4>
-        <span class="text-[11px] text-slate-400">Esports hype</span>
-      </button>
-    </div>
-
-    <!-- Persona Preview Box -->
-    <div class="feature-card p-6 sm:p-8 max-w-4xl mx-auto">
-      <div class="flex items-center justify-between mb-4 pb-4 border-b border-white/10">
-        <div class="flex items-center gap-3">
-          <div id="persona-icon-box" class="w-10 h-10 rounded-xl bg-blurple/20 text-blurple flex items-center justify-center text-lg">
-            <i class="fa-solid fa-user-astronaut"></i>
+      <!-- Profile Card -->
+      <div class="bento-card p-6 text-center">
+        <img src="assets/avatar.jpg" alt="Avatar" class="w-20 h-20 rounded-full mx-auto object-cover mb-4 border-2 border-blurple" />
+        <h4 class="font-bold text-lg text-white">Community Member</h4>
+        <span class="text-xs text-slate-400">Joined 3 Servers with Smart Bot</span>
+        
+        <div class="mt-6 pt-4 border-t border-white/[0.08] flex justify-around text-center font-mono">
+          <div>
+            <span class="text-xs text-slate-500 block">Level</span>
+            <span class="text-base font-bold text-cyan">14</span>
           </div>
           <div>
-            <h3 id="persona-title" class="font-heading font-bold text-lg text-white">Default Persona</h3>
-            <span id="persona-tagline" class="text-xs text-slate-400 font-mono">@Smart bot set persona to default</span>
+            <span class="text-xs text-slate-500 block">Karma</span>
+            <span class="text-base font-bold text-emerald-400">+128</span>
           </div>
         </div>
-        <div class="flex items-center gap-3">
-          <button id="play-voice-btn" class="px-3.5 py-1.5 rounded-xl bg-blurple hover:bg-blurple-hover text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md shadow-blurple/20">
-            <i class="fa-solid fa-play text-[10px]" id="voice-play-icon"></i>
-            <span id="voice-play-text">Listen to Voice Demo</span>
-          </button>
-          <span class="text-xs text-emerald-400 font-mono bg-emerald-500/10 px-2.5 py-1 rounded hidden sm:inline">EDGE-TTS NEURAL</span>
-        </div>
       </div>
-      <div class="bg-dark/80 rounded-xl p-4 font-mono text-sm space-y-3">
-        <div class="text-slate-400">User: <span class="text-white">"Smart bot, why is my code failing?"</span></div>
-        <div class="text-blurple">Smart Bot: <span id="persona-sample-quote" class="text-slate-200">"Let's look at the stack trace. You're trying to index into a NoneType on line 42 because the API call timed out. Wrap it in a try/except block with backoff and you're good."</span></div>
+
+      <!-- GDPR Privacy & Memory Control -->
+      <div class="bento-card p-6 md:col-span-2 flex flex-col justify-between">
+        <div>
+          <h4 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-user-shield text-cyan"></i> AI Memory & Privacy Self-Serve
+          </h4>
+          <p class="text-xs text-slate-400 leading-relaxed mb-4">
+            Under Smart Bot's privacy standard, you have full control over what facts the AI remembers about you.
+          </p>
+
+          <div class="bg-surface/80 rounded-xl p-4 border border-white/[0.08] mb-4 text-xs font-mono text-slate-300 space-y-1.5">
+            <div class="text-slate-400 font-bold mb-1">Indexed Public Facts:</div>
+            <div>• Active in #general and #gaming channels.</div>
+            <div>• Preferred Timezone: UTC+5:30.</div>
+          </div>
+        </div>
+
+        <button onclick="alert('Your personal indexed facts have been purged successfully.')" class="btn-secondary !py-2.5 !px-4 text-xs !border-crimson/30 hover:!bg-crimson/20 text-crimson font-semibold">
+          <i class="fa-solid fa-trash-can mr-1.5"></i> Clear What Smart Bot Knows About Me
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- ========================================================================= -->
-  <!-- SAAS COMMAND CENTER (LINEAR / STRIPE TIER DASHBOARD EXPERIENCE)          -->
-  <!-- ========================================================================= -->
-  <section id="command-center" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+  <!-- 2. Admin Console (Admin Login) -->
+  <section id="admin-portal-view" class="hidden relative z-10 pt-28 sm:pt-36 max-w-6xl mx-auto px-6 pb-20">
+    <div class="flex items-center justify-between mb-8">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blurple/10 border border-blurple/20 text-blurple text-xs font-mono mb-3">
-          <i class="fa-solid fa-crown"></i>
-          <span>ENTERPRISE COMMAND CENTER</span>
-        </div>
-        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight">
-          SaaS Community Intelligence Dashboard
-        </h2>
-        <p class="text-slate-400 text-sm mt-1">
-          Unified control center for ecosystem owners and server community managers.
-        </p>
+        <h2 class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">Admin Console</h2>
+        <h3 class="font-heading font-bold text-3xl text-white">Sophie ♡'s Cave Management</h3>
       </div>
-
-      <!-- Panel Role Switcher -->
-      <div class="flex items-center gap-2 bg-card p-1.5 rounded-2xl border border-white/10 self-start md:self-auto">
-        <button id="role-superadmin-btn" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all bg-blurple text-white shadow-md shadow-blurple/20">
-          <i class="fa-solid fa-globe"></i>
-          <span>Super Admin Fleet</span>
-        </button>
-        <button id="role-serveradmin-btn" class="px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>Server Owner View</span>
-        </button>
-      </div>
+      <button onclick="logoutRole()" class="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-300 transition-all">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i> Log Out
+      </button>
     </div>
 
-    <!-- Main Dashboard Container -->
-    <div class="feature-card p-6 sm:p-8 bg-[#090b11] border-white/10 shadow-2xl">
+    <!-- Admin Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
-      <!-- Top Navigation Tabs -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-4 border-b border-white/[0.08] mb-8 custom-scrollbar">
-        <button class="cc-tab active px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all bg-white/10 text-white" data-tab="overview">
-          <i class="fa-solid fa-chart-line text-blurple"></i>
-          <span>Global Overview</span>
-        </button>
-        <button class="cc-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white" data-tab="servers">
-          <i class="fa-solid fa-server text-indigo-400"></i>
-          <span>Server Fleet (2,430)</span>
-        </button>
-        <button class="cc-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white" data-tab="brain">
-          <i class="fa-solid fa-brain text-emerald-400"></i>
-          <span>Community Memory</span>
-        </button>
-        <button class="cc-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white" data-tab="analytics">
-          <i class="fa-solid fa-heart-pulse text-rose-400"></i>
-          <span>Health & Friction</span>
-        </button>
-        <button class="cc-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white" data-tab="suggestions">
-          <i class="fa-solid fa-lightbulb text-amber-400"></i>
-          <span>Product Feedback Loop</span>
-        </button>
-        <button class="cc-tab px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all text-slate-400 hover:text-white" data-tab="models">
-          <i class="fa-solid fa-microchip text-sky-400"></i>
-          <span>AI Routing & Costs</span>
-        </button>
-      </div>
-
-      <!-- Tab Content Render Zone -->
-      <div id="cc-tab-content" class="min-h-[420px]"></div>
-
-    </div>
-  </section>
-
-  <!-- ========================================================================= -->
-  <!-- PRICING & BETA TIERS SECTION                                              -->
-  <!-- ========================================================================= -->
-  <section id="pricing" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-mono uppercase tracking-wider text-amber-400 font-semibold mb-2 block">BETA ACCESS & PRICING</span>
-      <h2 class="font-heading font-bold text-3xl sm:text-5xl text-white tracking-tight mb-4">
-        Predictable, Transparent Tiers
-      </h2>
-      <p class="text-slate-400 text-base">
-        Join our early community beta today. Experience full Community Brain intelligence for $0.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-      
-      <!-- Tier 1: Free Beta -->
-      <div class="feature-card p-8 bg-card border-blurple/50 relative flex flex-col justify-between shadow-2xl shadow-blurple/10">
-        <div class="absolute -top-3 right-6 px-3 py-1 rounded-full bg-blurple text-white font-mono text-[10px] font-bold uppercase tracking-wider">
-          Current Tier
-        </div>
-        <div>
-          <h3 class="font-heading font-bold text-xl text-white mb-2">Free Beta</h3>
-          <p class="text-xs text-slate-400 mb-6">Full community intelligence for active Discord servers.</p>
-          <div class="text-4xl font-extrabold text-white font-heading mb-6">$0 <span class="text-xs text-slate-400 font-normal">/ month during beta</span></div>
-
-          <ul class="space-y-3 text-xs text-slate-300">
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400 text-xs"></i><span>Up to 100,000 messages / month</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400 text-xs"></i><span>Community Brain & Property Graph</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400 text-xs"></i><span>Weekly Executive Health Audits</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400 text-xs"></i><span>Living Knowledge Base Auto-Sync</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-emerald-400 text-xs"></i><span>Discord OAuth Customer Dashboard</span></li>
-          </ul>
-        </div>
-
-        <div class="mt-8 pt-6 border-t border-white/10">
-          <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-primary w-full text-center text-xs py-3">
-            <span>Claim Free Beta Access</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Tier 2: Pro Tier -->
-      <div class="feature-card p-8 bg-card border-white/10 flex flex-col justify-between opacity-90">
-        <div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono text-[10px] font-semibold mb-3">
-            COMING SOON
+      <!-- Live Health Monitor -->
+      <div class="bento-card p-6 md:col-span-2">
+        <h4 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+          <i class="fa-solid fa-heart-pulse text-emerald-400"></i> Live Health Diagnostic
+        </h4>
+        <div class="flex items-center justify-between bg-surface/80 p-4 rounded-xl border border-white/[0.08] mb-4">
+          <div>
+            <span class="text-2xl font-black text-emerald-400 font-mono">88/100</span>
+            <span class="text-xs text-slate-400 block">Grade A • Seed Stage Incubation</span>
           </div>
-          <h3 class="font-heading font-bold text-xl text-white mb-2">Pro Community</h3>
-          <p class="text-xs text-slate-400 mb-6">For fast-scaling communities requiring dedicated cloud RAG.</p>
-          <div class="text-4xl font-extrabold text-white font-heading mb-6">$29 <span class="text-xs text-slate-400 font-normal">/ month</span></div>
-
-          <ul class="space-y-3 text-xs text-slate-300">
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400 text-xs"></i><span>Unlimited Messages & Storage</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400 text-xs"></i><span>Multi-Server Synced Brain</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400 text-xs"></i><span>Custom Persona Neural Voices</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400 text-xs"></i><span>Export Support Case Logs to PDF</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-indigo-400 text-xs"></i><span>Priority Discord Support</span></li>
-          </ul>
+          <span class="text-xs font-mono px-3 py-1 rounded bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">All Systems Nominal</span>
         </div>
-
-        <div class="mt-8 pt-6 border-t border-white/10">
-          <button class="w-full py-3 rounded-xl bg-white/[0.05] text-slate-400 text-xs font-semibold cursor-not-allowed">
-            <span>Available Post-Beta</span>
-          </button>
-        </div>
+        <p class="text-xs text-slate-400">Recommendation: Index tournament rules via Knowledge Base manager to activate automatic rule answering.</p>
       </div>
 
-      <!-- Tier 3: Enterprise -->
-      <div class="feature-card p-8 bg-card border-white/10 flex flex-col justify-between">
+      <!-- Persona Tuner -->
+      <div class="bento-card p-6 flex flex-col justify-between">
         <div>
-          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-purple-500/10 text-purple-400 font-mono text-[10px] font-semibold mb-3">
-            ENTERPRISE FLEET
-          </div>
-          <h3 class="font-heading font-bold text-xl text-white mb-2">Enterprise</h3>
-          <p class="text-xs text-slate-400 mb-6">Dedicated cloud infrastructure & custom AI fine-tuning.</p>
-          <div class="text-4xl font-extrabold text-white font-heading mb-6">Custom</div>
-
-          <ul class="space-y-3 text-xs text-slate-300">
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-purple-400 text-xs"></i><span>Private Supabase / PostgreSQL VPC</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-purple-400 text-xs"></i><span>Custom Fine-Tuned Server Model</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-purple-400 text-xs"></i><span>Enterprise SOC2 / Privacy Shield</span></li>
-            <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-purple-400 text-xs"></i><span>Dedicated Account Manager & 99.99% SLA</span></li>
-          </ul>
+          <h4 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-masks-theater text-purple-400"></i> Server Persona
+          </h4>
+          <p class="text-xs text-slate-400 mb-4">Select the bot's communication tone for this server:</p>
+          <select class="w-full bg-white/[0.05] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none">
+            <option>Casual & Friendly (Default)</option>
+            <option>Gaming Hype & Banter</option>
+            <option>Developer & Tech Crisp</option>
+            <option>Sarcastic & Witty</option>
+          </select>
         </div>
-
-        <div class="mt-8 pt-6 border-t border-white/10">
-          <a href="mailto:beta@smartbot.ai" class="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-all">
-            <i class="fa-solid fa-envelope text-xs"></i>
-            <span>Contact Enterprise Sales</span>
-          </a>
-        </div>
+        <button onclick="alert('Persona settings saved!')" class="btn-primary !w-full !py-2 text-xs mt-4">Save Persona</button>
       </div>
 
     </div>
   </section>
 
-  <!-- 74+ Capabilities Explorer -->
-  <section id="capabilities" class="py-20 px-6 max-w-7xl mx-auto relative z-20 border-t border-white/[0.08]">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+  <!-- 3. Master Owner Panel (Only for You) -->
+  <section id="owner-portal-view" class="hidden relative z-10 pt-28 sm:pt-36 max-w-6xl mx-auto px-6 pb-20">
+    <div class="flex items-center justify-between mb-8">
       <div>
-        <span class="text-xs font-mono uppercase tracking-wider text-violet-400 font-semibold mb-2 block">Tool Manifest</span>
-        <h2 class="font-heading font-bold text-3xl sm:text-4xl text-white tracking-tight">
-          63+ Atomic Capabilities
+        <h2 class="text-xs font-mono font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-crown text-amber-400"></i> Master Control Panel
         </h2>
+        <h3 class="font-heading font-bold text-3xl text-white">Global SaaS Fleet Telemetry</h3>
       </div>
+      <button onclick="logoutRole()" class="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-slate-300 transition-all">
+        <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i> Log Out
+      </button>
+    </div>
 
-      <div class="w-full md:w-72">
-        <input id="tool-search-input" type="text" placeholder="Search 63+ tools..." class="w-full bg-card border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-500 focus:border-blurple outline-none" />
+    <!-- Master Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6 font-mono">
+      <div class="bento-card p-5">
+        <span class="text-xs text-slate-500 block">Connected Guilds</span>
+        <span class="text-2xl font-bold text-white">2,430</span>
+      </div>
+      <div class="bento-card p-5">
+        <span class="text-xs text-slate-500 block">Humans Scanned</span>
+        <span class="text-2xl font-bold text-cyan">184,200</span>
+      </div>
+      <div class="bento-card p-5">
+        <span class="text-xs text-slate-500 block">Neural Latency</span>
+        <span class="text-2xl font-bold text-emerald-400">59ms</span>
+      </div>
+      <div class="bento-card p-5">
+        <span class="text-xs text-slate-500 block">Monthly Revenue</span>
+        <span class="text-2xl font-bold text-amber-400">$11,280</span>
       </div>
     </div>
 
-    <!-- Category Filter Tabs -->
-    <div id="capability-tabs" class="flex items-center gap-2 overflow-x-auto pb-4 mb-8 custom-scrollbar">
-      <button class="cap-tab active px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-blurple text-white" data-category="all">All (63+)</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="moderation">Moderation & Bans</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="channels">Channels & Forum</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="widgets">Polls & Tickets</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="memory">Memory & Persona</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="enterprise">AutoMod & Webhooks</button>
-      <button class="cap-tab px-4 py-2 rounded-xl text-xs font-semibold transition-all bg-card text-slate-400 hover:text-white" data-category="native">Native Code & Web</button>
+    <!-- Global Broadcast Tool -->
+    <div class="bento-card p-6">
+      <h4 class="font-bold text-lg text-white mb-2 flex items-center gap-2">
+        <i class="fa-solid fa-bullhorn text-cyan"></i> Global Mod-Log Broadcast
+      </h4>
+      <p class="text-xs text-slate-400 mb-4">Push an update notice directly to all connected servers' audit channels.</p>
+      <div class="flex gap-3">
+        <input type="text" placeholder="e.g. Smart Bot v5.1 is live with instant voice transcription!" class="flex-1 bg-white/[0.05] border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none" />
+        <button onclick="alert('Broadcast queued for all connected servers!')" class="btn-primary !py-2 !px-6 text-xs">Send Broadcast</button>
+      </div>
     </div>
-
-    <!-- Tools Grid -->
-    <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
   </section>
 
-  <!-- Final High-Impact CTA Section -->
-  <section class="py-24 px-6 max-w-5xl mx-auto text-center relative z-20">
-    <div class="feature-card p-10 sm:p-16 border-blurple/40 glow-blurple">
-      <h2 class="font-heading font-extrabold text-3xl sm:text-5xl text-white tracking-tight mb-6">
-        Ready to Supercharge Your Discord Community?
-      </h2>
-      <p class="max-w-xl mx-auto text-slate-300 text-base sm:text-lg leading-relaxed mb-10">
-        Add Smart Bot to your server in 30 seconds. Experience autonomous moderation, instant private tickets, and continuous intelligence.
-      </p>
-      <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" class="btn-primary !text-base !py-4 !px-8">
-          <i class="fa-brands fa-discord text-xl"></i>
-          <span>Summon to Discord (Free)</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="py-12 px-6 border-t border-white/[0.08] bg-card text-xs font-mono">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-      <div class="flex items-center gap-2">
-        <div class="w-6 h-6 rounded-lg bg-blurple flex items-center justify-center text-white font-bold text-xs">
-          <i class="fa-solid fa-bolt text-[10px]"></i>
-        </div>
-        <span class="font-heading font-bold text-white text-sm">Smart Bot AI</span>
-        <span class="text-slate-500 ml-2">© 2026</span>
-      </div>
-      <div class="flex items-center gap-6 text-slate-400">
-        <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" target="_blank" class="hover:text-white">Add Bot</a>
-        <a href="#features" class="hover:text-white">Features</a>
-        <a href="#capabilities" class="hover:text-white">63+ Tools</a>
-        <a href="#simulator" class="hover:text-white">Live Sandbox</a>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Discord OAuth2 Login & Role Modal -->
-  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="feature-card p-6 sm:p-8 bg-[#090b11] border-white/15 max-w-md w-full relative shadow-2xl animate-in fade-in zoom-in duration-200">
+  <!-- ========================================== -->
+  <!-- AUTH SIMULATOR & LOGIN MODAL -->
+  <!-- ========================================== -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-md w-full p-8 border border-white/20 shadow-2xl relative">
       
-      <!-- Close Button -->
-      <button id="close-auth-modal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white transition-colors text-lg">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <!-- Modal Header -->
-      <div class="text-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-blurple/20 text-blurple flex items-center justify-center text-2xl mx-auto mb-3">
-          <i class="fa-brands fa-discord"></i>
-        </div>
-        <h3 class="font-heading font-bold text-xl text-white">Smart Bot OS Portal</h3>
-        <p class="text-xs text-slate-400 mt-1">Authenticate to access your Community Brain & Command Center</p>
+      <div class="w-12 h-12 rounded-2xl bg-blurple/20 border border-blurple/40 flex items-center justify-center text-blurple text-2xl mx-auto mb-5 shadow-lg shadow-blurple/20">
+        <i class="fa-brands fa-discord"></i>
       </div>
 
-      <!-- Auth Options -->
-      <div class="space-y-3">
-        <!-- Live OAuth Button -->
-        <a id="discord-oauth-link" href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&response_type=code&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fauth%2Fcallback&scope=identify%20guilds" class="btn-primary w-full !py-3 !text-xs !justify-center flex items-center gap-2">
-          <i class="fa-brands fa-discord text-base"></i>
-          <span>Continue with Discord OAuth2</span>
-        </a>
+      <h3 class="font-heading font-extrabold text-2xl text-white text-center mb-2">Connect Your Discord</h3>
+      <p class="text-slate-400 text-xs text-center mb-6">
+        Sign in to manage your servers, view private Community Health metrics, and configure AI settings.
+      </p>
 
-        <div class="flex items-center my-4">
-          <div class="flex-grow border-t border-white/10"></div>
-          <span class="px-3 text-[10px] font-mono text-slate-500 uppercase">Or Test Local Role</span>
-          <div class="flex-grow border-t border-white/10"></div>
-        </div>
-
-        <!-- Dev Mode: Server Admin Login -->
-        <button id="dev-login-admin" class="w-full p-3.5 rounded-xl bg-card hover:bg-white/[0.06] border border-white/10 text-left flex items-center justify-between transition-all group">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xs">
-              <i class="fa-solid fa-shield-halved"></i>
-            </div>
-            <div>
-              <div class="text-xs font-semibold text-white group-hover:text-emerald-400 transition-colors">Server Admin Role</div>
-              <div class="text-[10px] text-slate-400">View Community Server #112233 only</div>
-            </div>
+      <!-- Role Selector for testing all portal states -->
+      <div class="space-y-2 mb-6">
+        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Select Access View:</span>
+        <button onclick="selectRole('member')" class="w-full p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 flex items-center justify-between text-left transition-all">
+          <div>
+            <span class="text-xs font-bold text-white block">👤 Community Member</span>
+            <span class="text-[10px] text-slate-400">View personal XP, rank, and privacy controls</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:translate-x-0.5 transition-transform"></i>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
         </button>
 
-        <!-- Dev Mode: Owner SuperAdmin Login -->
-        <button id="dev-login-owner" class="w-full p-3.5 rounded-xl bg-card hover:bg-white/[0.06] border border-white/10 text-left flex items-center justify-between transition-all group">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-xs">
-              <i class="fa-solid fa-crown"></i>
-            </div>
-            <div>
-              <div class="text-xs font-semibold text-white group-hover:text-purple-400 transition-colors">Owner SuperAdmin</div>
-              <div class="text-[10px] text-slate-400">Access full fleet, telemetry & improvements</div>
-            </div>
+        <button onclick="selectRole('admin')" class="w-full p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 flex items-center justify-between text-left transition-all">
+          <div>
+            <span class="text-xs font-bold text-emerald-400 block">🛡️ Server Admin</span>
+            <span class="text-[10px] text-slate-400">Manage Sophie ♡'s Cave, Health Radar & DNA</span>
           </div>
-          <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:translate-x-0.5 transition-transform"></i>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+        </button>
+
+        <button onclick="selectRole('owner')" class="w-full p-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 flex items-center justify-between text-left transition-all">
+          <div>
+            <span class="text-xs font-bold text-purple-300 block flex items-center gap-1"><i class="fa-solid fa-crown text-amber-400 text-xs"></i> Platform Owner</span>
+            <span class="text-[10px] text-slate-400">Global fleet telemetry & engine controls</span>
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
         </button>
       </div>
+
+      <a href="https://discord.com/oauth2/authorize?client_id=1540339098076577852&permissions=8&scope=bot%20applications.commands" class="btn-primary !w-full !py-3 text-xs font-bold">
+        <i class="fa-brands fa-discord"></i>
+        <span>Authorize with Discord OAuth2</span>
+      </a>
 
     </div>
   </div>
 
-  <!-- App Script -->
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-white/[0.08] bg-cosmic py-12">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+      <div class="flex items-center gap-3">
+        <img src="assets/avatar.jpg" alt="Logo" class="w-6 h-6 rounded-full object-cover" />
+        <span class="text-slate-400 font-bold">Smart Bot AI Engine</span>
+        <span>© 2026. All rights reserved.</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <span class="text-emerald-400 flex items-center gap-1.5">
+          <span class="pulse-dot bg-emerald-400 !w-2 !h-2"></span> All Systems Operational
+        </span>
+        <a href="#hero" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#hero" class="hover:text-white transition-colors">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
   <script src="app.js"></script>
 </body>
 </html>
