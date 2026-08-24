@@ -372,7 +372,7 @@ async def slash_brain(interaction: discord.Interaction, query: str):
         embed.add_field(name="📚 Verified Rules & Records", value=kb_text, inline=False)
 
     dna = res.get("server_dna", {})
-    embed.set_footer(text=f"Server Archetype: {dna.get('server_type', 'Community')} • Smart Bot OS v5.0")
+    embed.set_footer(text=f"Server Archetype: {dna.get('server_type', 'Community')} • Smart Bot")
     await interaction.followup.send(embed=embed)
 
 
@@ -407,7 +407,7 @@ async def slash_health(interaction: discord.Interaction):
         rec_text = "\n".join(f"• {r}" for r in health['recommendations'][:3])
         embed.add_field(name="💡 AI Strategic Recommendations", value=rec_text, inline=False)
 
-    embed.set_footer(text="Smart Bot OS v5.0 Community Analyst")
+    embed.set_footer(text="Smart Bot Community Intelligence")
     await interaction.followup.send(embed=embed)
 
 
@@ -427,7 +427,7 @@ async def slash_dna(interaction: discord.Interaction):
     embed.add_field(name="🎭 Formality & Emojis", value=f"{dna['formality_level']} • {dna['emoji_style']}", inline=True)
     embed.add_field(name="🎯 Main Topics", value=", ".join(dna['main_topics']), inline=False)
     embed.add_field(name="📜 Key Grounded Rules", value="\n".join(f"• {r}" for r in dna['important_rules'][:3]), inline=False)
-    embed.set_footer(text=f"Profile Confidence: {dna['confidence_pct']}% • Smart Bot OS v5.0")
+    embed.set_footer(text=f"Profile Confidence: {dna['confidence_pct']}% • Smart Bot")
     await interaction.response.send_message(embed=embed)
 
 

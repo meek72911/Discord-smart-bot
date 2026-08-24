@@ -18,9 +18,9 @@ def setup_card_embed(guild: discord.Guild, configured: bool = False) -> discord.
     """
     dna = community_brain.get_server_dna(guild.id)
     embed = discord.Embed(
-        title=f"🧠 Smart Bot OS v5.0 — Active in {guild.name}!",
+        title=f"🧠 Smart Bot — Active in {guild.name}!",
         description=(
-            ">>> **The Autonomous AI Brain for Your Discord Community**\n"
+            ">>> **The Autonomous AI for Your Discord Community**\n"
             "Understand member feedback, trace decision histories, calculate Community Health, "
             "and query your living knowledge graph with zero configuration."
         ),
@@ -29,7 +29,7 @@ def setup_card_embed(guild: discord.Guild, configured: bool = False) -> discord.
 
     # Status & DNA Pill
     status_emoji = "🟢" if configured else "⚡"
-    status_text = f"**{guild.name} OS Active**" if configured else "**Quick Setup (~30 Seconds)**"
+    status_text = f"**{guild.name} Active**" if configured else "**Quick Setup (~30 Seconds)**"
     embed.add_field(
         name="⚡ System & Server DNA",
         value=f"{status_emoji} {status_text} • Archetype: **{dna.get('server_type', 'General Community')}**\nStyle: *{dna.get('communication_style', 'Casual & Friendly')}* (Confidence: {dna.get('confidence_pct', 85)}%)",
@@ -83,7 +83,7 @@ def setup_card_embed(guild: discord.Guild, configured: bool = False) -> discord.
         embed.set_thumbnail(url=guild.icon.url)
 
     embed.set_footer(
-        text=f"Smart Bot OS v5.0 • Mention me anytime in any channel • Enterprise AI Intelligence",
+        text=f"Smart Bot • Mention me anytime in any channel • Powered by AI",
         icon_url=guild.me.display_avatar.url if guild.me else None,
     )
     return embed
