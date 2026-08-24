@@ -431,6 +431,41 @@ async def set_channel_read_only(channel_name: str, read_only: bool) -> str:
         return f"Error setting channel read-only state: {str(e)}"
 
 
+async def lock_all_channels(lock: bool = True, reason: str = "Server Lockdown") -> str:
+    """
+    Locks or unlocks all public text channels in the server by toggling send_messages for @everyone.
+
+    Args:
+        lock: True to lock all text channels (read-only), False to unlock all channels.
+        reason: The reason for the lockdown.
+    """
+    guild = current_guild.get()
+    if not guild:
+        return "Error: Guild context is missing."
+
+    everyone_role = guild.default_role
+    locked_count = 0
+    errors = []
+
+    for channel in guild.text_channels:
+        try:
+            overwrites = channel.overwrites_for(everyone_role)
+            if lock:
+                overwrites.send_messages = False
+            else:
+                overwrites.send_messages = None
+            await channel.set_permissions(everyone_role, overwrite=overwrites, reason=reason)
+            locked_count += 1
+        except Exception as e:
+            errors.append(f"#{channel.name}: {str(e)}")
+
+    action_word = "locked (read-only)" if lock else "unlocked"
+    msg = f"🔒 Successfully {action_word} {locked_count} text channels in {guild.name}."
+    if errors:
+        msg += f" (Note: {len(errors)} channels could not be modified due to permissions)"
+    return await _notify_and_return(msg)
+
+
 async def hide_channel(channel_name: str, hide: bool) -> str:
     """
     Hides or unhides a channel for the @everyone role by toggling read_messages/view_channel permission.
@@ -844,11 +879,17 @@ async def remove_role(username_or_id: str, role_name: str) -> str:
     if not role:
         return f"Error: Role '{role_name}' not found in this server."
 
-    if _is_dangerous_role(role):
-        return (
-            f"Error: Role '{role.name}' grants admin-level powers (or is above the bot), "
-            "so it can only be removed manually by a server admin in Server Settings."
-        )
+    # Hierarchy check: Bot can only remove roles below its own highest role
+    try:
+        if guild.me and not role.is_default():
+            bot_top_position = getattr(guild.me.top_role, "position", 0)
+            if role.position >= bot_top_position:
+                return (
+                    f"Error: Role '{role.name}' is above or equal to the bot's highest role in server hierarchy. "
+                    "Move the bot's role higher in Server Settings > Roles to allow managing this role."
+                )
+    except Exception:
+        pass
 
     try:
         await member.remove_roles(role)

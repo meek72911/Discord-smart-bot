@@ -58,6 +58,13 @@ intents.members = True
 intents.guilds = True
 intents.voice_states = True
 
+CHANNEL_LOCKS: Dict[int, asyncio.Lock] = {}
+
+def get_channel_lock(channel_id: int) -> asyncio.Lock:
+    if channel_id not in CHANNEL_LOCKS:
+        CHANNEL_LOCKS[channel_id] = asyncio.Lock()
+    return CHANNEL_LOCKS[channel_id]
+
 
 class SmartBot(commands.Bot):
     async def setup_hook(self) -> None:
@@ -450,12 +457,16 @@ def is_authorized_moderator(member: discord.Member, guild: discord.Guild = None)
         return False
     if config.is_authorized_user(member.id):
         return True
+    if guild and getattr(guild, "owner_id", None) == member.id:
+        return True
     if hasattr(member, "guild_permissions"):
         return bool(
             member.guild_permissions.administrator
             or member.guild_permissions.manage_guild
             or member.guild_permissions.manage_messages
             or member.guild_permissions.moderate_members
+            or member.guild_permissions.manage_roles
+            or member.guild_permissions.manage_channels
         )
     return False
 
@@ -569,12 +580,29 @@ async def on_message(message: discord.Message):
 
     attachment_urls = [att.url for att in message.attachments if att.url][:MAX_ATTACHMENTS]
 
-    is_authorized = config.is_authorized_user(message.author.id)
+    is_authorized = is_authorized_moderator(message.author, message.guild) if message.guild else config.is_authorized_user(message.author.id)
     auth_status_str = "Authorized Moderator" if is_authorized else "Standard User"
     logger.info(
         f"Processing message from '{message.author}' ({message.author.id}) [{auth_status_str}] "
         f"in channel '{message.channel}' attachments={len(attachment_urls)}"
     )
+
+    # Format reply context if user is replying to a previous message
+    reply_prefix = ""
+    if message.reference and message.reference.resolved:
+        resolved = message.reference.resolved
+        if isinstance(resolved, discord.Message):
+            ref_author = resolved.author.display_name
+            ref_text = resolved.clean_content.strip()
+            if len(ref_text) > 250:
+                ref_text = ref_text[:250] + "..."
+            reply_prefix = f"[Replying to {ref_author}: \"{ref_text}\"]\n"
+
+    # Enrich author identity with server role (Server Owner, Moderator, Member)
+    role_label = "Server Owner" if (message.guild and message.guild.owner_id == message.author.id) else ("Moderator" if is_authorized else "Member")
+    enriched_author = f"{message.author.display_name} ({role_label})"
+
+    full_content = reply_prefix + cleaned_content
 
     # --- Voice Channel Shortcuts ---
     cleaned_lower = cleaned_content.lower().strip()
@@ -657,14 +685,15 @@ async def on_message(message: discord.Message):
         except Exception:
             pass
 
-    await _stream_ai_reply(message, cleaned_content, is_authorized, attachment_urls, lang_hint)
+    await _stream_ai_reply(message, full_content, is_authorized, attachment_urls, lang_hint, author_name=enriched_author)
 
 
-async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_urls, lang_hint=""):
+async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_urls, lang_hint="", author_name=None):
     """Consume the AI stream and live-edit a Discord reply."""
     sent = None
     last_edit = 0.0
     final_text = ""
+    author_name = author_name or message.author.display_name
     typing_task = asyncio.create_task(_keep_typing(message.channel))
 
     # Set context variables before initializing stream generator
@@ -674,41 +703,43 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
     src_token = ai_service.tools.current_source_message.set(message)
     rem_token = ai_service.tools.current_reminder_channel.set(message.channel.id)
 
-    try:
-        stream = ai_service.process_chat_message_stream(
-            channel_id=message.channel.id,
-            author_name=message.author.display_name,
-            message_content=cleaned_content,
-            is_authorized=is_authorized,
-            attachments=attachment_urls,
-            author_id=message.author.id,
-            lang_hint=lang_hint,
-        )
-        async for prefix in stream:
-            final_text = prefix
-            now = time.time()
-            if now - last_edit >= EDIT_THROTTLE_SECONDS:
-                if sent is None:
-                    sent = await send_reply_safe(message, prefix[:1990])
-                elif sent is not None:
-                    try:
-                        await sent.edit(content=prefix[:2000])
-                    except Exception:
-                        pass
-                last_edit = now
-    except Exception as e:
-        logger.error(f"Error streaming AI response: {e}", exc_info=True)
-        final_text = final_text or "Oops! I ran into an error while processing that request."
-    finally:
+    channel_lock = get_channel_lock(message.channel.id)
+    async with channel_lock:
         try:
-            typing_task.cancel()
-        except Exception:
-            pass
-        ai_service.tools.current_guild.reset(guild_token)
-        ai_service.tools.current_user_id.reset(user_token)
-        ai_service.tools.current_requester_id.reset(req_token)
-        ai_service.tools.current_source_message.reset(src_token)
-        ai_service.tools.current_reminder_channel.reset(rem_token)
+            stream = ai_service.process_chat_message_stream(
+                channel_id=message.channel.id,
+                author_name=author_name,
+                message_content=cleaned_content,
+                is_authorized=is_authorized,
+                attachments=attachment_urls,
+                author_id=message.author.id,
+                lang_hint=lang_hint,
+            )
+            async for prefix in stream:
+                final_text = prefix
+                now = time.time()
+                if now - last_edit >= EDIT_THROTTLE_SECONDS:
+                    if sent is None:
+                        sent = await send_reply_safe(message, prefix[:1990])
+                    elif sent is not None:
+                        try:
+                            await sent.edit(content=prefix[:2000])
+                        except Exception:
+                            pass
+                    last_edit = now
+        except Exception as e:
+            logger.error(f"Error streaming AI response: {e}", exc_info=True)
+            final_text = final_text or "Oops! I ran into an error while processing that request."
+        finally:
+            try:
+                typing_task.cancel()
+            except Exception:
+                pass
+            ai_service.tools.current_guild.reset(guild_token)
+            ai_service.tools.current_user_id.reset(user_token)
+            ai_service.tools.current_requester_id.reset(req_token)
+            ai_service.tools.current_source_message.reset(src_token)
+            ai_service.tools.current_reminder_channel.reset(rem_token)
 
     # Detect if final_text contains a direct GIF / image media URL to embed cleanly
     media_url = None

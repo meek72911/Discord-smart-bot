@@ -105,8 +105,9 @@ SYSTEM_INSTRUCTION = (
     "that only trusted moderators can do that. Roles granting admin-level powers cannot be assigned via tools; "
     "explain they must be assigned manually in Server Settings. "
     "Moderation tools only work inside a server, never in DMs. "
-    "SMART BEHAVIOR: Destructive actions (ban/purge/delete/close ticket) automatically show the user a confirm "
-    "button — if the result says CANCELLED or EXPIRED, tell them nothing happened; never retry on your own. "
+    "DIRECT TOOL EXECUTION: When an authorized user asks to perform actions (e.g. 'lock all channels', 'remove mod role from user', 'ban user', 'purge messages', 'kick user', 'timeout user', or confirms with 'Yes'/'confirm'/'do it'), IMMEDIATELY INVOKE the corresponding tools (e.g. lock_all_channels, remove_role, set_channel_read_only, purge_messages, ban_user). DO NOT just chat about doing it or ask for confirmation in plain text — execute the tools immediately! "
+    "DISCORD CARTOON ROLEPLAY & PLAYFUL BANTER (Slaps, Hugs, Bonks, Roasts, Pat): In Discord culture, playful actions like 'slap @user', 'hug @user', 'bonk @user', 'pat @user', 'roast @user' are harmless cartoon humor and lighthearted roleplay! NEVER return robotic refusals like 'I cannot help with that' or 'I am an AI'. Instead, enthusiastically participate with humorous cartoon action text (e.g. '*👋 slaps @user with a giant plush squeaky hammer!* 💥🧸' or '*gives @user a warm cozy hug!* 🌸') or find a funny anime GIF using gif_search! "
+    "SMART BEHAVIOR: Destructive actions (ban/purge/delete/close ticket) automatically handle safety gates — if the result says CANCELLED or EXPIRED, tell them nothing happened; never retry on your own. "
     "If a request is ambiguous (multiple channels/users with similar names) and a tool returns AMBIGUOUS, ask the "
     "user which one they meant instead of picking randomly. If a tool result starts with 'AMBIGUOUS', relay the options. "
     "COMMUNITY BRAIN & SERVER INTELLIGENCE: You are the AI Operating System for this Discord community. "
@@ -157,6 +158,7 @@ MODERATION_TOOLS = [
     tools.create_category,
     tools.delete_channel,
     tools.set_channel_read_only,
+    tools.lock_all_channels,
     tools.hide_channel,
     # Member moderation
     tools.ban_user,
@@ -702,11 +704,29 @@ async def _stream_groq(channel_id: int, author_name: str, message_content: str, 
     openai_tools = _python_tools_to_openai(ALL_TOOLS)
     if channel_id not in GROQ_HISTORY:
         GROQ_HISTORY[channel_id] = []
+        try:
+            restored = storage.load_channel_history(channel_id)
+            for d in restored[-8:]:
+                try:
+                    role = d.get("role", "user")
+                    parts = d.get("parts", [])
+                    texts = [p.get("text","") for p in parts if p.get("text")]
+                    if texts:
+                        o_role = "assistant" if role == "model" else "user"
+                        GROQ_HISTORY[channel_id].append({"role": o_role, "content": " ".join(texts)[:1000]})
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        GROQ_HISTORY[channel_id] = GROQ_HISTORY[channel_id][-14:]
 
     user_msg = {"role": "user", "content": f"{clean_author}: {clean_content}"}
+    GROQ_HISTORY[channel_id].append(user_msg)
+    if len(GROQ_HISTORY[channel_id]) > 16:
+        GROQ_HISTORY[channel_id] = GROQ_HISTORY[channel_id][-14:]
+
     messages: List[Dict] = [{"role": "system", "content": sys_content}]
     messages.extend(GROQ_HISTORY[channel_id])
-    messages.append(user_msg)
 
     selected_model = config.GROQ_MODEL or "openai/gpt-oss-20b"
     models_to_try = [selected_model, "openai/gpt-oss-120b", "qwen/qwen3.6-27b"]
@@ -902,9 +922,12 @@ async def _stream_openrouter(channel_id: int, author_name: str, message_content:
     selected_model = OPENROUTER_REASONING_MODEL if is_deep_report else OPENROUTER_MODEL
     logger.info(f"Routing request to [{selected_model}] (is_deep_report={is_deep_report})")
 
+    OPENROUTER_HISTORY[channel_id].append(user_msg)
+    if len(OPENROUTER_HISTORY[channel_id]) > 16:
+        OPENROUTER_HISTORY[channel_id] = OPENROUTER_HISTORY[channel_id][-14:]
+
     messages: List[Dict] = [{"role": "system", "content": sys_content}]
     messages.extend(OPENROUTER_HISTORY[channel_id])
-    messages.append(user_msg)
 
     accumulated = ""
     for _turn in range(MAX_TURNS):
