@@ -2933,10 +2933,20 @@ async def get_community_health_score() -> str:
     if guild is None:
         return "Error: Community Health metrics only work inside a server."
 
-    health = community_analyst.calculate_community_health_score(guild.id)
+    health = community_analyst.calculate_community_health_score(guild.id, guild=guild)
     
+    stage_header = f"{health.get('stage_badge', '🌱')} **Lifecycle Stage:** {health.get('stage', 'Community')}"
+    if health.get('server_age_days') is not None:
+        stage_header += f" *(Created {health['server_age_days']} days ago)*"
+
+    demo_header = ""
+    if health.get('total_members'):
+        demo_header = f"👥 **Demographics:** `{health.get('human_members', 0)} Humans` • `{health.get('bot_members', 0)} Bots`\n"
+
     out = [
         f"📈 **COMMUNITY HEALTH EVALUATION — {guild.name.upper()}**",
+        stage_header,
+        demo_header if demo_header else "",
         f"🏆 **Overall Score: {health['health_score']}/100 — {health['grade']}**\n",
         "**Score Breakdown:**",
         f"• Engagement & Activity: `{health['metrics']['engagement']}`",
@@ -2946,6 +2956,8 @@ async def get_community_health_score() -> str:
         f"• Vibe & Retention: `{health['metrics']['vibe_retention']}`\n",
         "**⚠️ Friction Radar:**"
     ]
+    # Filter empty lines
+    out = [line for line in out if line != ""]
     for f in health["frictions"][:3]:
         out.append(f"• {f}")
     

@@ -382,11 +382,18 @@ async def slash_health(interaction: discord.Interaction):
         await interaction.response.send_message("Run /health inside your server.", ephemeral=True)
         return
     await interaction.response.defer(ephemeral=False)
-    health = community_analyst.calculate_community_health_score(interaction.guild.id)
+    health = community_analyst.calculate_community_health_score(interaction.guild.id, guild=interaction.guild)
     
+    desc = f"### **{health['health_score']}/100** • **{health['grade']}**\n"
+    desc += f"{health.get('stage_badge', '🌱')} **Stage:** {health.get('stage', 'Community')}"
+    if health.get('server_age_days') is not None:
+        desc += f" *(Created {health['server_age_days']} days ago)*"
+    if health.get('total_members'):
+        desc += f"\n👥 **Members:** `{health.get('human_members', 0)} Humans` • `{health.get('bot_members', 0)} Bots`"
+
     embed = discord.Embed(
         title=f"📈 Community Health Score — {interaction.guild.name}",
-        description=f"### **{health['health_score']}/100** • **{health['grade']}**",
+        description=desc,
         color=0x57F287 if health['health_score'] >= 75 else 0xFEE75C
     )
     embed.add_field(name="📊 Engagement", value=health['metrics']['engagement'], inline=True)
