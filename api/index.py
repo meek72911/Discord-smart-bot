@@ -7,6 +7,7 @@ import urllib.parse
 import json
 import os
 import sys
+import traceback
 
 # Ensure project root is in sys.path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -16,31 +17,45 @@ from backend import main as backend_router
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        query_params = urllib.parse.parse_qs(parsed.query)
-        status, data = backend_router.handle_api_request("GET", parsed.path, query_params)
-        self.send_response(status)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed.query)
+            status, data = backend_router.handle_api_request("GET", parsed.path, query_params)
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e), "trace": traceback.format_exc()}).encode('utf-8'))
 
     def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
-        query_params = urllib.parse.parse_qs(parsed.query)
-        length = int(self.headers.get('content-length', 0))
-        body_json = None
-        if length > 0:
-            try:
-                body_json = json.loads(self.rfile.read(length).decode('utf-8'))
-            except Exception:
-                pass
-        status, data = backend_router.handle_api_request("POST", parsed.path, query_params, body_json=body_json)
-        self.send_response(status)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
+        try:
+            parsed = urllib.parse.urlparse(self.path)
+            query_params = urllib.parse.parse_qs(parsed.query)
+            length = int(self.headers.get('content-length', 0))
+            body_json = None
+            if length > 0:
+                try:
+                    body_json = json.loads(self.rfile.read(length).decode('utf-8'))
+                except Exception:
+                    pass
+            status, data = backend_router.handle_api_request("POST", parsed.path, query_params, body_json=body_json)
+            self.send_response(status)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps({"error": str(e), "trace": traceback.format_exc()}).encode('utf-8'))
 
     def do_OPTIONS(self):
         self.send_response(200)
