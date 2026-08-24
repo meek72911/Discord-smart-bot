@@ -763,6 +763,7 @@ function initCommandPalette() {
   const input = document.getElementById('cmd-input');
   const results = document.getElementById('cmd-results');
   const triggerBtn = document.getElementById('cmd-trigger-btn');
+  if (!modal || !input || !results) return;
 
   function openPalette() {
     modal.classList.remove('hidden');
@@ -878,6 +879,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (simForm && simInput) {
     simForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      const val = simInput.value.trim();
+      if (!val) return;
       let matchedType = 'mod';
       const valLower = val.toLowerCase();
       if (valLower.includes('suggest') || valLower.includes('feedback') || valLower.includes('idea')) matchedType = 'suggest';
