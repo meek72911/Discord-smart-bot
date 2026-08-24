@@ -439,6 +439,22 @@ async def slash_report(interaction: discord.Interaction):
             await interaction.channel.send(chunk)
 
 
+def is_authorized_moderator(member: discord.Member, guild: discord.Guild = None) -> bool:
+    """Checks if a user is an authorized moderator or server admin."""
+    if member is None:
+        return False
+    if config.is_authorized_user(member.id):
+        return True
+    if hasattr(member, "guild_permissions"):
+        return bool(
+            member.guild_permissions.administrator
+            or member.guild_permissions.manage_guild
+            or member.guild_permissions.manage_messages
+            or member.guild_permissions.moderate_members
+        )
+    return False
+
+
 @client.event
 async def on_message(message: discord.Message):
     if message.author.bot:
