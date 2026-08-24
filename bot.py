@@ -704,6 +704,11 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
     rem_token = ai_service.tools.current_reminder_channel.set(message.channel.id)
 
     channel_lock = get_channel_lock(message.channel.id)
+    try:
+        await message.add_reaction("🌸")
+    except Exception:
+        pass
+
     async with channel_lock:
         try:
             stream = ai_service.process_chat_message_stream(
@@ -733,6 +738,11 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
         finally:
             try:
                 typing_task.cancel()
+            except Exception:
+                pass
+            try:
+                await message.remove_reaction("🌸", client.user)
+                await message.add_reaction("✨")
             except Exception:
                 pass
             ai_service.tools.current_guild.reset(guild_token)
