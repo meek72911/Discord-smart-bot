@@ -1,0 +1,30 @@
+services:
+  # 1. 24/7 Discord Bot Background Service
+  - type: worker
+    name: smart-bot-discord-engine
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python bot.py
+    envVars:
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+
+  # 2. REST API & Web Server (Optional if not using Vercel standalone)
+  - type: web
+    name: smart-bot-api-dashboard
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python web/serve.py
+    envVars:
+      - key: DATABASE_URL
+        sync: false

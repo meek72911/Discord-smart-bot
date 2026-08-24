@@ -8,3 +8,8 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+*.log
+*.db
+botdata.db
+cache/
+audio/*.mp3

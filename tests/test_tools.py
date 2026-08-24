@@ -7,6 +7,13 @@ import tools
 import config
 
 
+@pytest.fixture(autouse=True)
+def _disable_confirm_gates():
+    """Unit tests call tools directly without a chat surface — disable gates."""
+    with patch.object(config, "CONFIRM_DESTRUCTIVE", False):
+        yield
+
+
 @pytest.fixture
 def mock_guild():
     guild = MagicMock(spec=discord.Guild)
@@ -103,6 +110,15 @@ def mock_guild():
     role1 = MagicMock(spec=discord.Role)
     role1.id = 3001
     role1.name = "Moderator"
+    # Safe permissions: nothing dangerous enabled
+    safe_perms = MagicMock(spec=discord.Permissions)
+    for perm_name in tools._DANGEROUS_PERMISSIONS:
+        setattr(safe_perms, perm_name, False)
+    role1.permissions = safe_perms
+    role1.is_default.return_value = False
+    role1.position = 5  # below the bot's top role (10)
+    guild.me = MagicMock(spec=discord.Member)
+    guild.me.top_role.position = 10
     guild.roles = [role1]
     guild.get_role = lambda r_id: role1 if r_id == 3001 else None
     guild.create_role = AsyncMock(return_value=role1)
@@ -213,6 +229,26 @@ async def test_create_assign_remove_role(mock_guild):
 
 
 @pytest.mark.asyncio
+async def test_dangerous_role_guard_blocks_assignment(mock_guild):
+    # Give the mock role dangerous permissions; guard must refuse assignment
+    admin_perms = MagicMock(spec=discord.Permissions)
+    for perm_name in tools._DANGEROUS_PERMISSIONS:
+        setattr(admin_perms, perm_name, False)
+    admin_perms.administrator = True
+
+    role1 = mock_guild.roles[0]
+    original_perms = role1.permissions
+    role1.permissions = admin_perms
+    try:
+        res_assign = await tools.assign_role("alice_dev", "Moderator")
+        assert "admin-level powers" in res_assign
+        member = tools.find_member(mock_guild, "alice_dev")
+        member.add_roles.assert_not_called()
+    finally:
+        role1.permissions = original_perms
+
+
+@pytest.mark.asyncio
 async def test_purge_and_pin_message(mock_guild):
     res_purge = await tools.purge_messages("general", limit=5)
     assert "Successfully purged 2 message(s)" in res_purge
@@ -222,3 +258,70 @@ async def test_purge_and_pin_message(mock_guild):
 
     res_unpin = await tools.unpin_message("general", "5555")
     assert "Successfully unpinned message ID 5555" in res_unpin
+
+
+@pytest.mark.asyncio
+async def test_ban_requires_human_confirmation(mock_guild):
+    """Gate ON + no chat surface -> ban must NOT execute (fail-closed)."""
+    member = mock_guild.get_member(2001)
+    with patch.object(config, "CONFIRM_DESTRUCTIVE", True):
+        res = await tools.ban_user("alice_dev", reason="gate test")
+        assert "Nothing was executed" in res or "confirmation" in res.lower()
+        member.ban.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_ban_executes_after_confirmation(mock_guild):
+    """Gate ON + confirmed via ConfirmView -> ban executes."""
+    import views.confirm as vc
+    from unittest.mock import patch as _p
+
+    member = mock_guild.get_member(2001)
+
+    class _FakeHost:
+        async def edit(self, **kw):
+            pass
+
+    class _FakeMessage:
+        async def reply(self, **kw):
+            return _FakeHost()
+
+    fake_msg = _FakeMessage()
+    token_req = tools.current_requester_id.set(1463495220124454955)
+    token_src = tools.current_source_message.set(fake_msg)
+    try:
+        with patch.object(config, "CONFIRM_DESTRUCTIVE", True):
+            with _p.object(vc.ConfirmView, "wait", AsyncMock(return_value=None)):
+                # Simulate user pressing Confirm before wait() resolves
+                orig_wait = vc.ConfirmView.wait
+
+                async def confirmed_wait(self_view):
+                    self_view.confirmed = True
+                    return None
+
+                with _p.object(vc.ConfirmView, "wait", confirmed_wait):
+                    res = await tools.ban_user("alice_dev", reason="confirmed test")
+        assert "Successfully banned" in res
+        member.ban.assert_called_once()
+    finally:
+        tools.current_requester_id.reset(token_req)
+        tools.current_source_message.reset(token_src)
+
+
+@pytest.mark.asyncio
+async def test_suggest_feature_and_list(mock_guild):
+    token_g = tools.current_guild.set(mock_guild)
+    token_u = tools.current_user_id.set(9999)
+    try:
+        # Submit suggestion
+        res = await tools.suggest_feature("Add Discord event Google Calendar sync", category="integrations")
+        assert "FEATURE SUGGESTION RECORDED" in res
+        assert "Calendar sync" in res
+
+        # List suggestions
+        list_res = await tools.list_feature_suggestions(limit=5)
+        assert "TOP COMMUNITY FEATURE REQUESTS" in list_res
+        assert "Calendar sync" in list_res
+    finally:
+        tools.current_guild.reset(token_g)
+        tools.current_user_id.reset(token_u)
