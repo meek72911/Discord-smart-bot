@@ -288,7 +288,7 @@ async def slash_setup(interaction: discord.Interaction):
     if interaction.guild is None:
         await interaction.response.send_message("Run /setup inside your server.", ephemeral=True)
         return
-    if not (interaction.user.id == config.OWNER_ID or interaction.user.guild_permissions.manage_guild):
+    if not (config.is_authorized_user(interaction.user.id) or interaction.user.guild_permissions.manage_guild):
         await interaction.response.send_message("⛔ You need **Manage Server** permission.", ephemeral=True)
         return
     embed = ob.setup_card_embed(interaction.guild, _is_guild_configured(interaction.guild.id))
