@@ -818,10 +818,38 @@ async def _reminder_loop():
         await asyncio.sleep(30)
 
 
+# --- Health Check HTTP Server for Render/Koyeb 24/7 Cloud Compatibility ---
+import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+class HealthCheckHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.end_headers()
+        self.wfile.write(b'{"status":"online","bot":"Smart Bot OS v5.0","cloud":"render"}')
+
+    def log_message(self, format, *args):
+        pass  # Suppress excessive health probe logs
+
+def start_cloud_health_server():
+    port = int(os.getenv("PORT", "10000"))
+    try:
+        server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
+        t = threading.Thread(target=server.serve_forever, daemon=True)
+        t.start()
+        logger.info(f"Cloud health probe HTTP server listening on 0.0.0.0:{port}")
+    except Exception as e:
+        logger.warning(f"Health check server startup note on port {port}: {e}")
+
+
 def main():
     if not config.DISCORD_BOT_TOKEN:
         logger.error("Error: DISCORD_BOT_TOKEN is not set in environment variables.")
         sys.exit(1)
+    start_cloud_health_server()
     client.run(config.DISCORD_BOT_TOKEN)
 
 
