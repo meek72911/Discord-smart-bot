@@ -1,4 +1,7 @@
 .env
+.env.*
+*secrets*
+SECRETS_BACKUP.env
 __pycache__/
 *.py[cod]
 *$py.class
