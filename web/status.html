@@ -449,6 +449,16 @@
       renderEvents();
     }
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function renderEvents() {
       const container = document.getElementById('event-list');
       const query = (document.getElementById('search-input').value || '').toLowerCase();
@@ -476,12 +486,12 @@
         return `
           <div class="event-item ${isErr ? 'is-error' : ''}">
             <div class="event-top">
-              <span class="event-tag ${tagClass}">${e.type || e.level}</span>
-              <span class="event-time">${e.timestamp}</span>
+              <span class="event-tag ${tagClass}">${escapeHtml(e.type || e.level)}</span>
+              <span class="event-time">${escapeHtml(e.timestamp)}</span>
             </div>
-            <div class="event-title">${e.title}</div>
-            <div class="event-details">${e.details}</div>
-            ${e.stack_trace ? `<pre class="stack-trace">${e.stack_trace}</pre>` : ''}
+            <div class="event-title">${escapeHtml(e.title)}</div>
+            <div class="event-details">${escapeHtml(e.details)}</div>
+            ${e.stack_trace ? `<pre class="stack-trace">${escapeHtml(e.stack_trace)}</pre>` : ''}
           </div>
         `;
       }).join('');

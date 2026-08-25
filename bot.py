@@ -920,6 +920,16 @@ SYSTEM_BOOT_TIME = time.time()
 SYSTEM_EVENTS: List[Dict] = []
 MAX_SYSTEM_EVENTS = 120
 
+def _redact_secrets(text: str) -> str:
+    """Redacts known token patterns and sensitive keys from system events and logs."""
+    if not text:
+        return text
+    # Redact Discord tokens (e.g. MTU... or mfa...)
+    text = re.sub(r'MTU[0-9A-Za-z_-]{20,}\.[0-9A-Za-z_-]{5,}\.[0-9A-Za-z_-]{20,}', '[REDACTED_DISCORD_TOKEN]', text)
+    # Redact generic API keys (sk-..., gsk_..., AIzaSy..., sbp_...)
+    text = re.sub(r'(?:sk-[a-zA-Z0-9_-]{20,}|gsk_[a-zA-Z0-9_-]{20,}|AIzaSy[a-zA-Z0-9_-]{25,}|sbp_[a-zA-Z0-9_-]{20,}|rnd_[a-zA-Z0-9_-]{20,})', '[REDACTED_SECRET_KEY]', text)
+    return text
+
 def record_system_event(event_type: str, title: str, details: str = "", level: str = "info", stack_trace: str = ""):
     """Record a system event (action, error, crash, warning, keep-alive) into the telemetry buffer."""
     event = {
@@ -927,9 +937,9 @@ def record_system_event(event_type: str, title: str, details: str = "", level: s
         "epoch": time.time(),
         "type": event_type,  # "action", "error", "crash", "deploy", "sentinel", "ai_turn", "mod"
         "level": level,      # "info", "warning", "error", "critical"
-        "title": str(title)[:200],
-        "details": str(details)[:1000],
-        "stack_trace": str(stack_trace)[:3000] if stack_trace else "",
+        "title": _redact_secrets(str(title)[:200]),
+        "details": _redact_secrets(str(details)[:1000]),
+        "stack_trace": _redact_secrets(str(stack_trace)[:3000]) if stack_trace else "",
     }
     SYSTEM_EVENTS.insert(0, event)
     if len(SYSTEM_EVENTS) > MAX_SYSTEM_EVENTS:
@@ -939,14 +949,22 @@ def record_system_event(event_type: str, title: str, details: str = "", level: s
 record_system_event("deploy", "Smart Bot OS Engine Started", f"Version 5.0.3 | Python {sys.version.split()[0]}", level="info")
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
+    def _send_secure_headers(self, status_code=200, content_type="application/json"):
+        self.send_response(status_code)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+        self.end_headers()
+
     def do_GET(self):
         parsed_path = self.path.split("?")[0]
+        query_str = self.path.split("?")[1] if "?" in self.path else ""
+        
         if parsed_path in ["/telemetry", "/api/telemetry", "/api/status", "/status"]:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
-            
+            self._send_secure_headers(200, "application/json")
             uptime_sec = int(time.time() - SYSTEM_BOOT_TIME)
             data = {
                 "status": "online",
@@ -963,24 +981,36 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             }
             self.wfile.write(json.dumps(data).encode("utf-8"))
         elif parsed_path in ["/logs", "/api/logs"]:
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            # Server-Side Auth Gate: Require authorization token to access raw server logs
+            auth_header = self.headers.get("Authorization", "")
+            auth_param = ""
+            for param in query_str.split("&"):
+                if param.startswith("auth="):
+                    auth_param = param.split("=")[1]
+            
+            is_authorized = (
+                str(config.OWNER_ID) in auth_header
+                or str(config.OWNER_ID) == auth_param
+                or any(str(uid) in auth_header or str(uid) == auth_param for uid in config.TRUSTED_USER_IDS)
+            )
+            
+            if not is_authorized:
+                self._send_secure_headers(401, "application/json")
+                self.wfile.write(b'{"error":"Unauthorized. Admin authorization key required to view server logs."}')
+                return
+
+            self._send_secure_headers(200, "text/plain; charset=utf-8")
             log_content = "No logs recorded yet."
             try:
                 if os.path.exists("bot.log"):
                     with open("bot.log", "r", encoding="utf-8", errors="replace") as f:
                         lines = f.readlines()
-                        log_content = "".join(lines[-150:])
+                        log_content = _redact_secrets("".join(lines[-150:]))
             except Exception as e:
                 log_content = f"Error reading log file: {e}"
             self.wfile.write(log_content.encode("utf-8"))
         else:
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.end_headers()
+            self._send_secure_headers(200, "application/json")
             self.wfile.write(b'{"status":"online","bot":"Smart Bot OS v5.0","cloud":"render"}')
 
     def log_message(self, format, *args):
