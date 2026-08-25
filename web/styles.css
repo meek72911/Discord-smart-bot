@@ -59,6 +59,14 @@ body {
   min-height: 100vh;
   position: relative;
   background-color: var(--bg-deep);
+  background-image: 
+    radial-gradient(ellipse at 50% 20%, rgba(5, 2, 8, 0.35) 0%, rgba(5, 2, 8, 0.75) 60%, #050208 100%),
+    linear-gradient(180deg, rgba(5, 2, 8, 0.15) 0%, rgba(5, 2, 8, 0.6) 40%, rgba(5, 2, 8, 0.92) 80%, #050208 100%),
+    url('bg.jpg');
+  background-attachment: fixed;
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 /* Selection */

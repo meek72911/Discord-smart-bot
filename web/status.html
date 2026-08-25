@@ -20,7 +20,15 @@
       --red: #ef4444;
     }
     body {
-      background: var(--bg-deep);
+      background-color: var(--bg-deep);
+      background-image: 
+        radial-gradient(ellipse at 50% 20%, rgba(5, 2, 8, 0.4) 0%, rgba(5, 2, 8, 0.8) 60%, #050208 100%),
+        linear-gradient(180deg, rgba(5, 2, 8, 0.2) 0%, rgba(5, 2, 8, 0.65) 40%, rgba(5, 2, 8, 0.95) 80%, #050208 100%),
+        url('bg.jpg');
+      background-attachment: fixed;
+      background-position: center top;
+      background-size: cover;
+      background-repeat: no-repeat;
       color: #f3e8f7;
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
