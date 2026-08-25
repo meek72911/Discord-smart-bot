@@ -986,6 +986,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
         elif parsed_path in ["/logs", "/api/logs"]:
             # Server-Side Auth Gate: Require Header-only authorization token (Authorization: Bearer <ID/KEY>)
             # Query string ?auth= parameter is strictly rejected to prevent credential leakage in URLs / access logs.
+            import hmac
             auth_header = self.headers.get("Authorization", "").strip()
             if auth_header.lower().startswith("bearer "):
                 token = auth_header[7:].strip()
@@ -993,10 +994,18 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 token = auth_header
 
             is_authorized = False
-            if token and config.OWNER_ID and token == str(config.OWNER_ID):
-                is_authorized = True
-            elif token and any(token == str(uid) for uid in config.TRUSTED_USER_IDS):
-                is_authorized = True
+            token_bytes = token.encode("utf-8")
+            if token and config.OWNER_ID:
+                owner_bytes = str(config.OWNER_ID).encode("utf-8")
+                if hmac.compare_digest(token_bytes, owner_bytes):
+                    is_authorized = True
+            
+            if not is_authorized and token and config.TRUSTED_USER_IDS:
+                for uid in config.TRUSTED_USER_IDS:
+                    trusted_bytes = str(uid).encode("utf-8")
+                    if hmac.compare_digest(token_bytes, trusted_bytes):
+                        is_authorized = True
+                        break
             
             if not is_authorized:
                 self._send_secure_headers(401, "application/json")

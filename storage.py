@@ -254,13 +254,41 @@ def forget_user_facts(user_id: int) -> None:
         _get_conn().commit()
 
 
+def scrub_user_from_logs(user_id: int) -> int:
+    """Scrub a user's ID and occurrences from local bot.log and rotated log files."""
+    scrubbed_count = 0
+    uid_str = str(user_id)
+    log_files = ["bot.log", "bot.log.1", "bot.log.2", "bot.log.3", "bot.log.4", "bot.log.5"]
+    for log_path in log_files:
+        if os.path.exists(log_path):
+            try:
+                with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                    lines = f.readlines()
+                modified = False
+                new_lines = []
+                for line in lines:
+                    if uid_str in line:
+                        new_lines.append(line.replace(uid_str, "[PURGED_USER_ID]"))
+                        scrubbed_count += 1
+                        modified = True
+                    else:
+                        new_lines.append(line)
+                if modified:
+                    with open(log_path, "w", encoding="utf-8") as f:
+                        f.writelines(new_lines)
+            except Exception:
+                pass
+    return scrubbed_count
+
+
 def purge_user_data(user_id: int) -> Dict[str, int]:
     """
-    Comprehensively purges all stored personal data for a user across all tables:
+    Comprehensively purges all stored personal data for a user across all tables and logs:
     - user_memory (saved facts & context)
     - user_lang (language preference)
     - reminders (pending user reminders)
     - user_xp (gamification record)
+    - bot.log (active & rotated disk logs)
     """
     counts = {}
     with _lock:
@@ -270,7 +298,8 @@ def purge_user_data(user_id: int) -> Dict[str, int]:
         c3 = conn.execute("DELETE FROM reminders WHERE user_id=?", (user_id,)).rowcount
         c4 = conn.execute("DELETE FROM user_xp WHERE user_id=?", (user_id,)).rowcount
         conn.commit()
-        counts = {"user_memory": c1, "user_lang": c2, "reminders": c3, "user_xp": c4}
+        c5 = scrub_user_from_logs(user_id)
+        counts = {"user_memory": c1, "user_lang": c2, "reminders": c3, "user_xp": c4, "logs_scrubbed": c5}
     return counts
 
 

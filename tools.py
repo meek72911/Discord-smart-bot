@@ -28,6 +28,46 @@ PERSONAS = {
 import ipaddress
 import socket
 import urllib.parse
+import aiohttp
+from aiohttp.resolver import ThreadedResolver
+
+class SSRFProtectedResolver(aiohttp.abc.AbstractResolver):
+    """
+    DNS Resolver that inspects and validates every resolved IP address at socket connection time.
+    Guarantees that DNS rebinding attacks (e.g. changing IP from public to 127.0.0.1 on second lookup)
+    are intercepted and rejected before TCP handshake.
+    """
+    def __init__(self):
+        self._underlying = ThreadedResolver()
+
+    async def resolve(self, host: str, port: int = 0, family: int = socket.AF_UNSPEC) -> List[Dict]:
+        hosts = await self._underlying.resolve(host, port, family)
+        for h in hosts:
+            ip_str = h.get("host")
+            if not ip_str:
+                continue
+            ip = ipaddress.ip_address(ip_str)
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_multicast
+                or ip.is_reserved
+                or ip.is_unspecified
+                or ip_str.startswith("169.254.")
+                or ip_str in ("0.0.0.0", "127.0.0.1", "::1")
+            ):
+                raise ValueError(f"SSRF Blocked: Host '{host}' resolved to restricted IP '{ip_str}'")
+        return hosts
+
+    async def close(self) -> None:
+        await self._underlying.close()
+
+def get_ssrf_safe_session(headers: Optional[Dict] = None, timeout_sec: float = 15.0) -> aiohttp.ClientSession:
+    """Returns an aiohttp ClientSession equipped with SSRFProtectedResolver to prevent DNS rebinding."""
+    connector = aiohttp.TCPConnector(resolver=SSRFProtectedResolver())
+    timeout = aiohttp.ClientTimeout(total=timeout_sec)
+    return aiohttp.ClientSession(connector=connector, headers=headers, timeout=timeout)
 
 def is_safe_public_url(url: str) -> tuple[bool, str]:
     """
@@ -2055,9 +2095,7 @@ async def create_emoji(emoji_name: str, image_url: str) -> str:
         return f"Error: Disallowed image URL ({err_msg})."
         
     try:
-        import aiohttp
-
-        async with aiohttp.ClientSession() as session:
+        async with get_ssrf_safe_session() as session:
             async with session.get(image_url) as resp:
                 if resp.status != 200:
                     return f"Error: Could not download image from {image_url} (status {resp.status})."
@@ -2465,8 +2503,8 @@ async def web_fetch(url: str) -> str:
     # 1. Primary extractor: r.jina.ai proxy (bypasses Cloudflare & renders JS cleanly to markdown)
     jina_url = f"https://r.jina.ai/{url}"
     try:
-        async with aiohttp.ClientSession(headers={"User-Agent": "Mozilla/5.0"}) as session:
-            async with session.get(jina_url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+        async with get_ssrf_safe_session(headers={"User-Agent": "Mozilla/5.0"}, timeout_sec=15) as session:
+            async with session.get(jina_url) as resp:
                 if resp.status == 200:
                     text = await resp.text()
                     if text and len(text.strip()) > 50:
@@ -2474,10 +2512,10 @@ async def web_fetch(url: str) -> str:
     except Exception:
         pass
 
-    # 2. Fallback: Direct HTML parser
+    # 2. Fallback: Direct HTML parser (Strictly validated by SSRFProtectedResolver)
     try:
-        async with aiohttp.ClientSession(headers=headers) as session:
-            async with session.get(url, timeout=aiohttp.ClientTimeout(total=15)) as resp:
+        async with get_ssrf_safe_session(headers=headers, timeout_sec=15) as session:
+            async with session.get(url) as resp:
                 if resp.status != 200:
                     return f"Error: Fetch failed with status {resp.status}."
                 ctype = resp.headers.get("Content-Type", "")
