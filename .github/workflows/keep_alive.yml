@@ -1,4 +1,4 @@
-name: Render Bot 24/7 Keep-Alive Sentinel
+name: 24/7 Cloud Sentinel (Render & Supabase Keep-Alive)
 
 on:
   schedule:
@@ -10,7 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Ping Render Discord Bot Gateway
+      - name: 1. Keep Render Discord Bot Awake
         run: |
-          echo 'Sending pulse to Render...'
-          curl -s -f -m 30 https://smart-bot-discord-engine.onrender.com || echo 'Pulse sent'
+          echo "Sending pulse to Render Discord Engine..."
+          curl -s -f -m 30 https://smart-bot-discord-engine.onrender.com || echo "Render pulse dispatched"
+
+      - name: 2. Prevent Supabase 7-Day Inactivity Auto-Pause
+        run: |
+          echo "Sending activity pulse to Supabase..."
+          curl -s -f -m 20 "https://bmofhaqqusvwisjbccqn.supabase.co/rest/v1/" || echo "Supabase pulse dispatched"
