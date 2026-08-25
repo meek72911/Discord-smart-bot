@@ -1,0 +1,16 @@
+name: Render Bot 24/7 Keep-Alive Sentinel
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping Render Discord Bot Gateway
+        run: |
+          echo 'Sending pulse to Render...'
+          curl -s -f -m 30 https://smart-bot-discord-engine.onrender.com || echo 'Pulse sent'
