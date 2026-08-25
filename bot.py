@@ -259,6 +259,12 @@ async def on_ready():
     if config.ALLOWED_GUILD_IDS:
         logger.info(f"Guild allowlist active: {config.ALLOWED_GUILD_IDS}")
     logger.info(f"Connected guilds: {len(client.guilds)}")
+    record_system_event(
+        "deploy",
+        f"Connected to Discord Gateway as @{client.user.name}",
+        f"Serving {len(client.guilds)} guilds ({', '.join([g.name for g in client.guilds])}) | Models: chat={config.CHAT_MODEL} provider={config.CHAT_PROVIDER}",
+        level="info"
+    )
     try:
         await client.change_presence(
             activity=discord.Activity(type=discord.ActivityType.listening, name="mentions | /setup")
@@ -734,6 +740,13 @@ async def _stream_ai_reply(message, cleaned_content, is_authorized, attachment_u
                     last_edit = now
         except Exception as e:
             logger.error(f"Error streaming AI response: {e}", exc_info=True)
+            record_system_event(
+                "error",
+                f"AI Stream Error for {message.author.display_name}",
+                str(e),
+                level="error",
+                stack_trace=traceback.format_exc()
+            )
             final_text = final_text or "Oops! I ran into an error while processing that request."
         finally:
             try:
@@ -896,18 +909,79 @@ async def _reminder_loop():
         await asyncio.sleep(30)
 
 
-# --- Health Check HTTP Server for Render/Koyeb 24/7 Cloud Compatibility ---
+# --- Health Check & Telemetry HTTP Server for Render/Koyeb 24/7 Cloud Compatibility ---
 import os
 import threading
+import json
+import traceback
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+SYSTEM_BOOT_TIME = time.time()
+SYSTEM_EVENTS: List[Dict] = []
+MAX_SYSTEM_EVENTS = 120
+
+def record_system_event(event_type: str, title: str, details: str = "", level: str = "info", stack_trace: str = ""):
+    """Record a system event (action, error, crash, warning, keep-alive) into the telemetry buffer."""
+    event = {
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S UTC", time.gmtime()),
+        "epoch": time.time(),
+        "type": event_type,  # "action", "error", "crash", "deploy", "sentinel", "ai_turn", "mod"
+        "level": level,      # "info", "warning", "error", "critical"
+        "title": str(title)[:200],
+        "details": str(details)[:1000],
+        "stack_trace": str(stack_trace)[:3000] if stack_trace else "",
+    }
+    SYSTEM_EVENTS.insert(0, event)
+    if len(SYSTEM_EVENTS) > MAX_SYSTEM_EVENTS:
+        SYSTEM_EVENTS.pop()
+
+# Record initial boot event
+record_system_event("deploy", "Smart Bot OS Engine Started", f"Version 5.0.3 | Python {sys.version.split()[0]}", level="info")
 
 class HealthCheckHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.end_headers()
-        self.wfile.write(b'{"status":"online","bot":"Smart Bot OS v5.0","cloud":"render"}')
+        parsed_path = self.path.split("?")[0]
+        if parsed_path in ["/telemetry", "/api/telemetry", "/api/status", "/status"]:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            
+            uptime_sec = int(time.time() - SYSTEM_BOOT_TIME)
+            data = {
+                "status": "online",
+                "bot": "Smart Bot OS v5.0.3",
+                "cloud": "render",
+                "uptime_seconds": uptime_sec,
+                "uptime_formatted": f"{uptime_sec // 3600}h {(uptime_sec % 3600) // 60}m {uptime_sec % 60}s",
+                "discord_ping_ms": round(client.latency * 1000, 1) if (client.is_ready() and client.latency) else None,
+                "connected_guilds": len(client.guilds) if client.is_ready() else 0,
+                "guild_names": [g.name for g in client.guilds] if client.is_ready() else [],
+                "events_count": len(SYSTEM_EVENTS),
+                "error_count": len([e for e in SYSTEM_EVENTS if e["level"] in ["error", "critical"]]),
+                "events": SYSTEM_EVENTS[:60],
+            }
+            self.wfile.write(json.dumps(data).encode("utf-8"))
+        elif parsed_path in ["/logs", "/api/logs"]:
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            log_content = "No logs recorded yet."
+            try:
+                if os.path.exists("bot.log"):
+                    with open("bot.log", "r", encoding="utf-8", errors="replace") as f:
+                        lines = f.readlines()
+                        log_content = "".join(lines[-150:])
+            except Exception as e:
+                log_content = f"Error reading log file: {e}"
+            self.wfile.write(log_content.encode("utf-8"))
+        else:
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(b'{"status":"online","bot":"Smart Bot OS v5.0","cloud":"render"}')
 
     def log_message(self, format, *args):
         pass  # Suppress excessive health probe logs
@@ -918,7 +992,7 @@ def start_cloud_health_server():
         server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
         t = threading.Thread(target=server.serve_forever, daemon=True)
         t.start()
-        logger.info(f"Cloud health probe HTTP server listening on 0.0.0.0:{port}")
+        logger.info(f"Cloud health probe & telemetry HTTP server listening on 0.0.0.0:{port}")
     except Exception as e:
         logger.warning(f"Health check server startup note on port {port}: {e}")
 
