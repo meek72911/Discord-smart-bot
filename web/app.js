@@ -212,11 +212,9 @@ addEventListener("scroll", () => {
 /* ---------- Live Gateway Pulse (Keep-Alive Sentinel) ---------- */
 async function pulseGateway() {
   try {
-    const res = await fetch('/api/keep-alive');
-    const data = await res.json();
-    console.log('[SmartBot Sentinel] Gateway Pulse:', data.status, `${data.latency_ms}ms`);
+    await fetch('https://smart-bot-discord-engine.onrender.com', { mode: 'no-cors' });
   } catch (err) {
-    fetch('https://smart-bot-discord-engine.onrender.com', { mode: 'no-cors' }).catch(() => {});
+    // Silent fallback
   }
 }
 pulseGateway();
