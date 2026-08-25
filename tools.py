@@ -25,6 +25,60 @@ PERSONAS = {
     "gamer": "You are gamer mode — hype, slang-heavy, obsessed with games, uses gaming metaphors.",
 }
 
+import ipaddress
+import socket
+import urllib.parse
+
+def is_safe_public_url(url: str) -> tuple[bool, str]:
+    """
+    Validates that a URL is a valid public HTTP(S) URL and does not resolve to private,
+    loopback, link-local, multicast, cloud metadata, or reserved IP ranges (SSRF Defense).
+    """
+    if not url or not isinstance(url, str):
+        return False, "Invalid URL string."
+    url_clean = url.strip()
+    try:
+        parsed = urllib.parse.urlparse(url_clean)
+        if parsed.scheme.lower() not in ("http", "https"):
+            return False, "Only HTTP and HTTPS URLs are permitted."
+        
+        hostname = parsed.hostname
+        if not hostname:
+            return False, "URL does not contain a valid hostname."
+        
+        hostname_lower = hostname.lower()
+        blocked_hostnames = {
+            "localhost", "127.0.0.1", "0.0.0.0", "::1", 
+            "metadata.google.internal", "instance-data",
+            "169.254.169.254"
+        }
+        if hostname_lower in blocked_hostnames:
+            return False, f"Access to local/metadata host '{hostname}' is blocked."
+
+        # Block non-standard ports commonly abused in SSRF
+        if parsed.port and parsed.port not in (80, 443, 8080, 8443):
+            return False, f"Port {parsed.port} is blocked for external fetching."
+
+        # Resolve hostname to IPv4 / IPv6 addresses and verify all are globally routable
+        addr_info = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        for family, _, _, _, sockaddr in addr_info:
+            ip_str = sockaddr[0]
+            ip = ipaddress.ip_address(ip_str)
+            if (
+                ip.is_private
+                or ip.is_loopback
+                or ip.is_link_local
+                or ip.is_multicast
+                or ip.is_reserved
+                or ip.is_unspecified
+                or ip_str.startswith("169.254.")
+            ):
+                return False, f"Target IP {ip_str} resolves to a private or internal network address (SSRF blocked)."
+
+        return True, ""
+    except Exception as e:
+        return False, f"URL resolution error: {e}"
+
 
 async def _notify_and_return(res: str) -> str:
     """Helper to log successful moderation actions to MOD_LOG_CHANNEL_ID if configured."""
@@ -1131,16 +1185,16 @@ async def recall_my_facts() -> str:
 
 async def forget_my_facts() -> str:
     """
-    Forget all saved facts about the current user.
-    Use when the user asks to forget/clear memory about them.
+    Forget all saved facts, preferences, and personal stored records about the current user.
+    Use when the user asks to forget/clear memory or delete their data.
     """
     import storage
 
     uid = current_user_id.get()
     if not uid:
         return "Error: Missing user context."
-    storage.forget_user_facts(int(uid))
-    return "Done — I forgot all saved facts about you."
+    storage.purge_user_data(int(uid))
+    return "Done — All saved facts, preferences, reminders, and personal memory about you have been permanently wiped from the database."
 
 
 async def set_server_persona(persona: str) -> str:
@@ -1995,6 +2049,11 @@ async def create_emoji(emoji_name: str, image_url: str) -> str:
         return "Error: Guild context is missing."
     if not emoji_name.strip():
         return "Error: Emoji name cannot be empty."
+    
+    is_safe, err_msg = is_safe_public_url(image_url)
+    if not is_safe:
+        return f"Error: Disallowed image URL ({err_msg})."
+        
     try:
         import aiohttp
 
@@ -2396,8 +2455,12 @@ async def web_fetch(url: str) -> str:
     from bs4 import BeautifulSoup
 
     url = url.strip()
-    if not url.startswith("http"):
+    if not url.startswith("http://") and not url.startswith("https://"):
         return "Error: URL must start with http:// or https://."
+
+    is_safe, err_msg = is_safe_public_url(url)
+    if not is_safe:
+        return f"Error: Disallowed URL target ({err_msg})."
 
     # 1. Primary extractor: r.jina.ai proxy (bypasses Cloudflare & renders JS cleanly to markdown)
     jina_url = f"https://r.jina.ai/{url}"

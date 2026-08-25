@@ -12,7 +12,6 @@ openai>=1.0.0
 
 # --- Voice & Audio (Optional / Modular) ---
 PyNaCl>=1.6.0
-davey>=0.1.6
 edge-tts>=6.1.0
 
 # --- Database & Supabase PostgreSQL ---

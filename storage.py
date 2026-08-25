@@ -254,6 +254,26 @@ def forget_user_facts(user_id: int) -> None:
         _get_conn().commit()
 
 
+def purge_user_data(user_id: int) -> Dict[str, int]:
+    """
+    Comprehensively purges all stored personal data for a user across all tables:
+    - user_memory (saved facts & context)
+    - user_lang (language preference)
+    - reminders (pending user reminders)
+    - user_xp (gamification record)
+    """
+    counts = {}
+    with _lock:
+        conn = _get_conn()
+        c1 = conn.execute("DELETE FROM user_memory WHERE user_id=?", (user_id,)).rowcount
+        c2 = conn.execute("DELETE FROM user_lang WHERE user_id=?", (user_id,)).rowcount
+        c3 = conn.execute("DELETE FROM reminders WHERE user_id=?", (user_id,)).rowcount
+        c4 = conn.execute("DELETE FROM user_xp WHERE user_id=?", (user_id,)).rowcount
+        conn.commit()
+        counts = {"user_memory": c1, "user_lang": c2, "reminders": c3, "user_xp": c4}
+    return counts
+
+
 def get_guild_persona(guild_id: int) -> str:
     with _lock:
         row = _get_conn().execute("SELECT persona FROM guild_persona WHERE guild_id=?", (guild_id,)).fetchone()

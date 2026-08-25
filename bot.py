@@ -447,6 +447,9 @@ async def slash_report(interaction: discord.Interaction):
     if interaction.guild is None:
         await interaction.response.send_message("Run /report inside your server.", ephemeral=True)
         return
+    if not is_authorized_moderator(interaction.user, interaction.guild):
+        await interaction.response.send_message("⛔ You need **Manage Server** or Moderator permission to generate Executive Reports.", ephemeral=True)
+        return
     await interaction.response.defer(ephemeral=False)
     report_text = community_analyst.generate_weekly_community_report_text(interaction.guild.id, interaction.guild.name)
     chunks = split_message(report_text, limit=1900)
@@ -981,22 +984,23 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
             }
             self.wfile.write(json.dumps(data).encode("utf-8"))
         elif parsed_path in ["/logs", "/api/logs"]:
-            # Server-Side Auth Gate: Require authorization token to access raw server logs
-            auth_header = self.headers.get("Authorization", "")
-            auth_param = ""
-            for param in query_str.split("&"):
-                if param.startswith("auth="):
-                    auth_param = param.split("=")[1]
-            
-            is_authorized = (
-                str(config.OWNER_ID) in auth_header
-                or str(config.OWNER_ID) == auth_param
-                or any(str(uid) in auth_header or str(uid) == auth_param for uid in config.TRUSTED_USER_IDS)
-            )
+            # Server-Side Auth Gate: Require Header-only authorization token (Authorization: Bearer <ID/KEY>)
+            # Query string ?auth= parameter is strictly rejected to prevent credential leakage in URLs / access logs.
+            auth_header = self.headers.get("Authorization", "").strip()
+            if auth_header.lower().startswith("bearer "):
+                token = auth_header[7:].strip()
+            else:
+                token = auth_header
+
+            is_authorized = False
+            if token and config.OWNER_ID and token == str(config.OWNER_ID):
+                is_authorized = True
+            elif token and any(token == str(uid) for uid in config.TRUSTED_USER_IDS):
+                is_authorized = True
             
             if not is_authorized:
                 self._send_secure_headers(401, "application/json")
-                self.wfile.write(b'{"error":"Unauthorized. Admin authorization key required to view server logs."}')
+                self.wfile.write(b'{"error":"Unauthorized. Header-only authorization required (Authorization: Bearer <ADMIN_KEY>)."}')
                 return
 
             self._send_secure_headers(200, "text/plain; charset=utf-8")
