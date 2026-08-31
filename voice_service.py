@@ -53,8 +53,34 @@ FEMALE_PERSONA_VOICES: Dict[str, Dict[str, str]] = {
     }
 }
 
+import hashlib
+
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache", "voice")
 os.makedirs(CACHE_DIR, exist_ok=True)
+
+def prune_voice_cache(max_files: int = 200, max_size_mb: int = 80):
+    """Evicts oldest voice cache files when exceeding file count or disk limits."""
+    try:
+        if not os.path.exists(CACHE_DIR):
+            return
+        files = [
+            os.path.join(CACHE_DIR, f)
+            for f in os.listdir(CACHE_DIR)
+            if f.endswith(".mp3") and os.path.isfile(os.path.join(CACHE_DIR, f))
+        ]
+        if len(files) <= max_files:
+            return
+        # Sort by last accessed / modified time
+        files.sort(key=lambda x: os.path.getmtime(x))
+        # Remove oldest files until within limit
+        excess = len(files) - max_files
+        for f in files[:excess]:
+            try:
+                os.remove(f)
+            except Exception:
+                pass
+    except Exception as e:
+        logger.debug(f"Voice cache prune note: {e}")
 
 # Guild Voice Playback Queues
 _VOICE_QUEUES: Dict[int, asyncio.Queue] = {}
@@ -66,7 +92,8 @@ async def synthesize_speech(text: str, persona: str = "default", output_filename
     """
     config = FEMALE_PERSONA_VOICES.get(persona.lower(), FEMALE_PERSONA_VOICES["default"])
     if not output_filename:
-        safe_hash = abs(hash(f"{text}_{persona}_{config['voice']}")) % 10000000
+        # Deterministic SHA-256 hash ensures stable cache hits across bot reboots
+        safe_hash = hashlib.sha256(f"{text}_{persona}_{config['voice']}".encode("utf-8")).hexdigest()[:16]
         output_path = os.path.join(CACHE_DIR, f"speech_{safe_hash}.mp3")
     else:
         output_path = os.path.join(CACHE_DIR, output_filename)
@@ -74,6 +101,9 @@ async def synthesize_speech(text: str, persona: str = "default", output_filename
     # If cached file exists and has content, reuse it for instant 0ms playback
     if os.path.exists(output_path) and os.path.getsize(output_path) > 1024:
         return output_path
+
+    # Auto-prune cache before creating new files
+    prune_voice_cache()
 
     comm = edge_tts.Communicate(
         text=text,

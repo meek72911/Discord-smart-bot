@@ -167,8 +167,19 @@ def split_message(text: str, limit: int = 1900) -> List[str]:
             split_at = text.rfind(" ", 0, limit)
         if split_at < limit // 2:
             split_at = limit
-        chunks.append(text[:split_at].rstrip())
+        
+        chunk = text[:split_at].rstrip()
         text = text[split_at:].lstrip()
+
+        # Handle split inside codeblock (odd count of ``` means open code block)
+        if chunk.count("```") % 2 != 0:
+            last_fence = chunk.rfind("```")
+            first_line = chunk[last_fence + 3:].split("\n", 1)[0].strip()
+            lang = first_line if first_line and " " not in first_line else ""
+            chunk += "\n```"
+            text = f"```{lang}\n" + text
+
+        chunks.append(chunk)
     if text:
         chunks.append(text)
     return chunks
@@ -273,6 +284,44 @@ async def on_ready():
         pass
     # Start background loops
     client.loop.create_task(_reminder_loop())
+
+
+_VOICE_IDLE_TASKS: Dict[int, asyncio.Task] = {}
+
+async def _auto_disconnect_voice_after_delay(guild: discord.Guild, delay_seconds: int = 180):
+    """Disconnects bot from voice channel if left alone for delay_seconds."""
+    try:
+        await asyncio.sleep(delay_seconds)
+        vc = guild.voice_client
+        if vc and vc.is_connected() and vc.channel:
+            human_members = [m for m in vc.channel.members if not m.bot]
+            if len(human_members) == 0:
+                logger.info(f"Auto-disconnecting from empty voice channel #{vc.channel.name} in guild {guild.name}")
+                await vc.disconnect(force=True)
+    except asyncio.CancelledError:
+        pass
+    except Exception as e:
+        logger.debug(f"Voice auto-disconnect note: {e}")
+    finally:
+        _VOICE_IDLE_TASKS.pop(guild.id, None)
+
+@client.event
+async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
+    """Monitors voice channels to auto-disconnect when the bot is left alone."""
+    guild = member.guild
+    vc = guild.voice_client
+    if not vc or not vc.is_connected() or not vc.channel:
+        return
+
+    # Check how many human members remain in the bot's channel
+    human_members = [m for m in vc.channel.members if not m.bot]
+    if len(human_members) == 0:
+        if guild.id not in _VOICE_IDLE_TASKS or _VOICE_IDLE_TASKS[guild.id].done():
+            _VOICE_IDLE_TASKS[guild.id] = asyncio.create_task(_auto_disconnect_voice_after_delay(guild, 180))
+    else:
+        task = _VOICE_IDLE_TASKS.pop(guild.id, None)
+        if task and not task.done():
+            task.cancel()
 
 
 @client.event
@@ -987,6 +1036,21 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 "events": SYSTEM_EVENTS[:60],
             }
             self.wfile.write(json.dumps(data).encode("utf-8"))
+
+            # Background keep-alive to Supabase REST API to prevent 7-day inactivity pause
+            def _ping_supabase():
+                sb_url = os.getenv("SUPABASE_URL", "https://bmofhaqqusvwisjbccqn.supabase.co")
+                sb_key = os.getenv("SUPABASE_ANON_KEY", "")
+                if sb_url:
+                    try:
+                        import urllib.request
+                        headers = {"apikey": sb_key, "Authorization": f"Bearer {sb_key}"} if sb_key else {}
+                        req = urllib.request.Request(f"{sb_url}/rest/v1/", headers=headers)
+                        with urllib.request.urlopen(req, timeout=3):
+                            pass
+                    except Exception:
+                        pass
+            threading.Thread(target=_ping_supabase, daemon=True).start()
         elif parsed_path in ["/logs", "/api/logs"]:
             # Server-Side Auth Gate: Require Header-only authorization token (Authorization: Bearer <ID/KEY>)
             # Query string ?auth= parameter is strictly rejected to prevent credential leakage in URLs / access logs.

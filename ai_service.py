@@ -51,27 +51,50 @@ if config.GROQ_API_KEY:
 
 
 def _python_tools_to_openai(tools_list) -> List[Dict]:
-    """Convert Python callables to OpenAI tool specs."""
+    """Convert Python callables to OpenAI tool specs with rich parameter descriptions."""
     out = []
     for fn in tools_list:
         if hasattr(fn, "__name__") and callable(fn):
             sig = inspect.signature(fn)
             props = {}
             required = []
-            doc = (fn.__doc__ or "").strip().split("\n")[0][:200]
+            doc_raw = (fn.__doc__ or "").strip()
+            summary = doc_raw.split("\n")[0][:200] if doc_raw else fn.__name__
+            
+            # Extract per-parameter documentation from docstrings
+            param_docs = {}
+            for line in doc_raw.split("\n"):
+                line_str = line.strip()
+                if line_str.startswith(":param ") or line_str.startswith("param "):
+                    parts = line_str.split(":", 2)
+                    if len(parts) >= 3:
+                        pname = parts[1].replace("param", "").strip()
+                        pdesc = parts[2].strip()
+                        param_docs[pname] = pdesc
+                elif ":" in line_str and not line_str.startswith("Args:"):
+                    parts = line_str.split(":", 1)
+                    pname = parts[0].strip()
+                    if pname in sig.parameters:
+                        param_docs[pname] = parts[1].strip()
+
             for name, param in sig.parameters.items():
                 ann = param.annotation
                 typ = "string"
                 if ann in (int, Optional[int]): typ = "integer"
                 elif ann in (bool, Optional[bool]): typ = "boolean"
-                props[name] = {"type": typ, "description": name}
+                elif ann in (float, Optional[float]): typ = "number"
+                elif ann in (list, List, Optional[List]): typ = "array"
+
+                p_desc = param_docs.get(name, f"Parameter {name} for {fn.__name__}")
+                props[name] = {"type": typ, "description": p_desc}
                 if param.default is inspect.Parameter.empty:
                     required.append(name)
+
             out.append({
                 "type": "function",
                 "function": {
                     "name": fn.__name__,
-                    "description": doc,
+                    "description": summary,
                     "parameters": {"type": "object", "properties": props, "required": required},
                 }
             })
