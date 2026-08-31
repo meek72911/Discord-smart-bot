@@ -962,6 +962,9 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
         self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
         self.end_headers()
 
+    def do_HEAD(self):
+        self._send_secure_headers(200, "application/json")
+
     def do_GET(self):
         parsed_path = self.path.split("?")[0]
         query_str = self.path.split("?")[1] if "?" in self.path else ""
@@ -973,6 +976,7 @@ class HealthCheckHandler(BaseHTTPRequestHandler):
                 "status": "online",
                 "bot": "Smart Bot OS v5.0.3",
                 "cloud": "render",
+                "discord_ready": bool(client.is_ready()),
                 "uptime_seconds": uptime_sec,
                 "uptime_formatted": f"{uptime_sec // 3600}h {(uptime_sec % 3600) // 60}m {uptime_sec % 60}s",
                 "discord_ping_ms": round(client.latency * 1000, 1) if (client.is_ready() and client.latency) else None,
